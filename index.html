@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Q-Line Inspectie</title>
+<style>
+:root {
+  --red:#CC0000;--redd:#990000;--blk:#0A0A0A;--wht:#FFFFFF;
+  --g50:#F8F8F8;--g100:#F0F0F0;--g200:#E0E0E0;--g400:#999;--g600:#555;--g700:#333;
+  --grn:#1A7A3A;--grnl:#E6F5EC;--org:#D05A00;--orgl:#FFF3E0;--blu:#1565C0;--blul:#E3F2FD;
+  --r:10px;--rs:6px;--tr:0.15s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:16px;background:#eee;color:#0A0A0A;min-height:100vh;-webkit-tap-highlight-color:transparent}
+/* SCREENS */
+.scr{display:none;flex-direction:column;min-height:100vh;max-width:680px;margin:0 auto;background:#fff;-webkit-box-shadow:0 0 20px rgba(0,0,0,.15);box-shadow:0 0 20px rgba(0,0,0,.15)}
+.scr.on{display:-webkit-flex;display:flex}
+/* HEADER */
+.hdr{background:#0A0A0A;color:#fff;padding:14px 16px;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;gap:10px;position:-webkit-sticky;position:sticky;top:0;z-index:100;min-height:58px}
+.hdr-logo{width:32px;height:32px;background:var(--red);border-radius:4px;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;font-weight:700;font-size:.95rem;color:#fff;-webkit-flex-shrink:0;flex-shrink:0}
+.hdr-title{-webkit-flex:1;flex:1;font-size:.95rem;font-weight:700}
+.hdr-sub{font-size:.68rem;opacity:.6;text-transform:uppercase;letter-spacing:.05em;display:block;margin-top:1px}
+.btn-back{background:none;border:none;color:#fff;font-size:1.6rem;cursor:pointer;padding:2px 8px;line-height:1;border-radius:4px;display:none;-webkit-tap-highlight-color:transparent}
+.btn-back.show{display:block}
+/* BODY */
+.bod{-webkit-flex:1;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px}
+.bod.np{padding:0}
+/* HERO */
+.hero{background:#0A0A0A;color:#fff;padding:28px 18px 24px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;right:-30px;top:-30px;width:160px;height:160px;background:var(--red);border-radius:50%;opacity:.1}
+.hero-bar{width:36px;height:4px;background:var(--red);border-radius:2px;margin-bottom:14px}
+.hero h1{font-size:1.5rem;font-weight:700;margin-bottom:6px;font-family:Georgia,serif}
+.hero p{opacity:.7;font-size:.88rem}
+/* BUTTONS */
+.btn{display:-webkit-inline-flex;display:inline-flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;gap:8px;padding:15px 20px;border:none;border-radius:var(--r);font-family:inherit;font-size:1rem;font-weight:600;cursor:pointer;text-decoration:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;min-height:52px;-webkit-transition:var(--tr);transition:var(--tr)}
+.btn:active{opacity:.8;-webkit-transform:scale(.97);transform:scale(.97)}
+.btn-p{background:var(--red);color:#fff}
+.btn-p:disabled{background:var(--g400);cursor:not-allowed}
+.btn-p:disabled:active{-webkit-transform:none;transform:none;opacity:1}
+.btn-s{background:var(--g100);color:var(--blk);border:2px solid var(--g200)}
+.btn-o{background:transparent;color:var(--red);border:2px solid var(--red)}
+.btn-g{background:transparent;color:var(--g600);border:2px solid var(--g200)}
+.btn-grn{background:var(--grn);color:#fff}
+.btn-full{width:100%}
+.btn-sm{padding:10px 14px;font-size:.86rem;min-height:40px}
+.btn-lg{padding:18px 24px;font-size:1.05rem;min-height:58px}
+/* MENU ITEMS */
+.mi{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;gap:14px;padding:16px 16px;background:#fff;border:1.5px solid var(--g200);border-radius:var(--r);margin-bottom:10px;cursor:pointer;text-align:left;width:100%;font-family:inherit;-webkit-tap-highlight-color:transparent;-webkit-transition:var(--tr);transition:var(--tr)}
+.mi:active{background:var(--g100)}
+.mi-ico{width:48px;height:48px;border-radius:var(--rs);display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;font-size:1.4rem;-webkit-flex-shrink:0;flex-shrink:0}
+.mi-ico.r{background:#FDECEA}
+.mi-ico.b{background:var(--blul)}
+.mi-ico.gr{background:var(--grnl)}
+.mi h3{font-size:.95rem;color:var(--blk);margin-bottom:2px}
+.mi p{font-size:.78rem;color:var(--g600)}
+.mi-arr{margin-left:auto;color:var(--g400);font-size:1.1rem}
+/* TYPE CARDS */
+.tc{border:2.5px solid var(--g200);border-radius:var(--r);padding:18px 16px;margin-bottom:12px;cursor:pointer;-webkit-transition:var(--tr);transition:var(--tr);display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;gap:14px;background:#fff;width:100%;text-align:left;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.tc:active{background:var(--g50)}
+.tc.sel{border-color:var(--red);background:#FFF5F5}
+.tc-ico{font-size:2.2rem;-webkit-flex-shrink:0;flex-shrink:0}
+.tc h3{font-size:1rem;font-weight:700;margin-bottom:2px}
+.tc p{font-size:.8rem;color:var(--g600)}
+/* FORMS */
+.fg{margin-bottom:16px}
+.lbl{display:block;font-size:.8rem;font-weight:600;color:var(--g700);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.lbl .req{color:var(--red);margin-left:2px}
+.inp,.sel,.ta{width:100%;padding:13px 14px;border:2px solid var(--g200);border-radius:var(--rs);font-family:inherit;font-size:1rem;color:var(--blk);background:#fff;-webkit-appearance:none;appearance:none;-webkit-transition:border-color var(--tr);transition:border-color var(--tr)}
+.inp:focus,.sel:focus,.ta:focus{outline:none;border-color:var(--red)}
+.ta{resize:vertical;min-height:80px;line-height:1.5}
+.sel{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23555' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:36px}
+.two{display:-webkit-flex;display:flex;gap:10px}
+.two .fg{-webkit-flex:1;flex:1}
+/* FILE DROP */
+.fdrop{border:2.5px dashed var(--g400);border-radius:var(--r);padding:32px 16px;text-align:center;background:var(--g50);cursor:pointer;-webkit-transition:var(--tr);transition:var(--tr);margin-bottom:14px}
+.fdrop:active{background:var(--g100)}
+.fdrop-ico{font-size:2.2rem;margin-bottom:10px}
+.fdrop h3{margin-bottom:4px}
+.fdrop p{color:var(--g600);font-size:.85rem}
+.fload{background:var(--grnl);border:2px solid var(--grn);border-radius:var(--r);padding:14px 16px;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;gap:12px;margin-bottom:14px}
+.fload .fi{font-size:1.4rem}
+.fload h3{font-size:.92rem;color:var(--grn);margin-bottom:2px}
+.fload p{font-size:.78rem;color:var(--g600)}
+/* PROGRESS */
+.prog-wrap{background:var(--g100);padding:10px 16px;border-bottom:1px solid var(--g200)}
+.prog-info{display:-webkit-flex;display:flex;-webkit-justify-content:space-between;justify-content:space-between;-webkit-align-items:center;align-items:center;margin-bottom:7px}
+.prog-cat{font-size:.78rem;font-weight:600;color:var(--g600)}
+.prog-cnt{font-size:.78rem;font-weight:700;color:var(--red)}
+.prog-bar{height:5px;background:var(--g200);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:var(--red);border-radius:3px;-webkit-transition:width .3s ease;transition:width .3s ease}
+/* STEP */
+.step-cat{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--red);margin-bottom:7px}
+.step-q{font-size:1.2rem;font-weight:700;line-height:1.4;margin-bottom:10px}
+.step-hint{background:var(--blul);border-left:3px solid var(--blu);padding:10px 12px;border-radius:0 var(--rs) var(--rs) 0;font-size:.86rem;color:#0d47a1;margin-bottom:18px;line-height:1.5}
+/* ANSWER BUTTONS */
+.ans-lbl{font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--g600);margin-bottom:9px}
+.ans-row{display:-webkit-flex;display:flex;gap:10px;margin-bottom:18px}
+.ans-btn{-webkit-flex:1;flex:1;padding:16px 10px;border:2.5px solid var(--g200);border-radius:var(--r);background:#fff;font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;-webkit-transition:var(--tr);transition:var(--tr);-webkit-tap-highlight-color:transparent;min-height:52px}
+.ans-btn:active{opacity:.8}
+.ans-ok{border-color:var(--grn);color:var(--grn)}
+.ans-ok.sel{background:var(--grn);color:#fff}
+.ans-nok{border-color:var(--red);color:var(--red)}
+.ans-nok.sel{background:var(--red);color:#fff}
+.ans-ja{border-color:var(--grn);color:var(--grn)}
+.ans-ja.sel{background:var(--grn);color:#fff}
+.ans-nee{border-color:var(--red);color:var(--red)}
+.ans-nee.sel{background:var(--red);color:#fff}
+/* MEETWAARDE */
+.mv-row{display:-webkit-flex;display:flex;gap:8px;-webkit-align-items:flex-end;align-items:flex-end}
+.mv-unit{padding:13px 14px;background:var(--g100);border:2px solid var(--g200);border-radius:var(--rs);font-size:.92rem;font-weight:600;color:var(--g700);white-space:nowrap;min-height:50px;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center}
+/* PHOTOS */
+.photo-req{font-size:.75rem;font-weight:700;color:var(--red);margin-bottom:7px}
+.photo-grid{display:-webkit-flex;display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.photo-thumb{width:80px;height:80px;border-radius:var(--rs);overflow:hidden;position:relative;border:1.5px solid var(--g200);-webkit-flex-shrink:0;flex-shrink:0}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.photo-del{position:absolute;top:3px;right:3px;width:20px;height:20px;background:var(--red);border:none;border-radius:50%;color:#fff;font-size:.65rem;cursor:pointer;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;line-height:1}
+.btn-photo{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;gap:8px;padding:12px 16px;border:2px dashed var(--g400);border-radius:var(--r);background:var(--g50);font-family:inherit;font-size:.9rem;font-weight:600;color:var(--g600);cursor:pointer;width:100%;-webkit-tap-highlight-color:transparent;-webkit-transition:var(--tr);transition:var(--tr)}
+.btn-photo:active{background:var(--g100)}
+/* STEP NAV */
+.step-nav{display:-webkit-flex;display:flex;gap:10px;padding:14px 16px;border-top:1px solid var(--g200);background:#fff;position:-webkit-sticky;position:sticky;bottom:0}
+.step-nav .btn{-webkit-flex:1;flex:1}
+/* KEUZELIJST */
+.keuze-wrap{display:-webkit-flex;display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.keuze-btn{padding:10px 16px;border:2px solid var(--g200);border-radius:20px;background:#fff;font-family:inherit;font-size:.88rem;font-weight:600;cursor:pointer;-webkit-transition:var(--tr);transition:var(--tr);-webkit-tap-highlight-color:transparent}
+.keuze-btn:active{opacity:.8}
+.keuze-btn.sel{background:var(--red);border-color:var(--red);color:#fff}
+/* CHECK ITEMS (onderhoud) */
+.chk{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;gap:12px;padding:15px 16px;border:1.5px solid var(--g200);border-radius:var(--r);margin-bottom:10px;cursor:pointer;-webkit-transition:var(--tr);transition:var(--tr);background:#fff;width:100%;text-align:left;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.chk:active{opacity:.8}
+.chk.on{border-color:var(--grn);background:var(--grnl)}
+.chk-box{width:24px;height:24px;border:2.5px solid var(--g400);border-radius:var(--rs);-webkit-flex-shrink:0;flex-shrink:0;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;font-size:.85rem;-webkit-transition:var(--tr);transition:var(--tr)}
+.chk.on .chk-box{background:var(--grn);border-color:var(--grn);color:#fff}
+.chk span{font-size:.95rem;font-weight:600}
+/* EVAL OPTIONS */
+.eo{border:2.5px solid var(--g200);border-radius:var(--r);padding:15px 16px;margin-bottom:10px;cursor:pointer;-webkit-transition:var(--tr);transition:var(--tr);display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;gap:12px;width:100%;text-align:left;background:#fff;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.eo:active{opacity:.8}
+.eo.sg{border-color:var(--grn);background:var(--grnl)}
+.eo.so{border-color:var(--org);background:var(--orgl)}
+.eo.sr{border-color:var(--red);background:#FFF5F5}
+.eo.sk{border-color:var(--blk);background:var(--g100)}
+.eo-radio{width:20px;height:20px;border:2.5px solid var(--g400);border-radius:50%;-webkit-flex-shrink:0;flex-shrink:0;-webkit-transition:var(--tr);transition:var(--tr)}
+.eo.sg .eo-radio{border-color:var(--grn);background:var(--grn)}
+.eo.so .eo-radio{border-color:var(--org);background:var(--org)}
+.eo.sr .eo-radio{border-color:var(--red);background:var(--red)}
+.eo.sk .eo-radio{border-color:var(--blk);background:var(--blk)}
+/* SIGNATURE */
+.sig-wrap{border:2px solid var(--g200);border-radius:var(--r);background:#fff;margin-bottom:10px;position:relative;overflow:hidden}
+.sig-canvas{display:block;width:100%;cursor:crosshair;touch-action:none}
+.sig-hint{position:absolute;top:50%;left:50%;-webkit-transform:translate(-50%,-50%);transform:translate(-50%,-50%);font-size:.82rem;color:var(--g400);pointer-events:none;font-style:italic;text-align:center}
+/* STATS */
+.stat-grid{display:-webkit-flex;display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.stat-box{-webkit-flex:1;flex:1;min-width:70px;background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--r);padding:14px;text-align:center}
+.stat-num{font-size:1.8rem;font-weight:800;line-height:1;margin-bottom:3px;font-family:Georgia,serif}
+.stat-lbl{font-size:.72rem;color:var(--g600);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.stat-box.sg .stat-num{color:var(--grn)}
+.stat-box.sr .stat-num{color:var(--red)}
+.stat-box.so .stat-num{color:var(--org)}
+/* ACTION LIST */
+.act-item{display:-webkit-flex;display:flex;-webkit-align-items:flex-start;align-items:flex-start;gap:10px;padding:12px 14px;border:1.5px solid #FDECEA;border-radius:var(--rs);background:#FFF8F8;margin-bottom:8px}
+.act-num{width:24px;height:24px;background:var(--red);border-radius:50%;color:#fff;font-size:.72rem;font-weight:700;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;-webkit-flex-shrink:0;flex-shrink:0;margin-top:1px}
+.act-h{font-size:.88rem;font-weight:700;margin-bottom:2px}
+.act-p{font-size:.8rem;color:var(--g600)}
+/* ARCHIVE */
+.arc-item{border:1.5px solid var(--g200);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;background:#fff}
+.arc-head{display:-webkit-flex;display:flex;-webkit-justify-content:space-between;justify-content:space-between;margin-bottom:6px}
+.arc-h{font-size:.95rem;font-weight:700}
+.arc-dt{font-size:.8rem;color:var(--g600)}
+.arc-meta{font-size:.8rem;color:var(--g600);margin-bottom:10px;line-height:1.7}
+.arc-btns{display:-webkit-flex;display:flex;gap:8px;flex-wrap:wrap}
+/* BADGE */
+.badge{display:-webkit-inline-flex;display:inline-flex;-webkit-align-items:center;align-items:center;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.bg{background:var(--grnl);color:var(--grn)}
+.bo{background:var(--orgl);color:var(--org)}
+.br{background:#FDECEA;color:var(--redd)}
+.bk{background:var(--g100);color:var(--g600)}
+/* REPORT */
+.rpt-sec{border-top:1.5px solid var(--g200);padding-top:16px;margin-top:16px}
+.rpt-sec:first-child{border-top:none;padding-top:0;margin-top:0}
+.rpt-sec-h{font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--red);margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid var(--g200);font-weight:700}
+.rpt-row{display:-webkit-flex;display:flex;gap:8px;-webkit-justify-content:space-between;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--g100);font-size:.86rem}
+.rpt-row:last-child{border-bottom:none}
+.rpt-lbl{color:var(--g600);-webkit-flex-shrink:0;flex-shrink:0;max-width:45%}
+.rpt-val{font-weight:600;text-align:right;word-break:break-word}
+.rpt-pt{padding:10px;border-radius:var(--rs);margin-bottom:7px;font-size:.84rem}
+.rpt-pt.ok{background:var(--grnl);border-left:3px solid var(--grn)}
+.rpt-pt.nok{background:#FDECEA;border-left:3px solid var(--red)}
+.rpt-pt.neu{background:var(--g50);border-left:3px solid var(--g400)}
+.rpt-pt-h{font-weight:700;margin-bottom:3px;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;gap:6px}
+.rpt-pt-d{color:var(--g700)}
+/* DIVIDER / SECTION LABEL */
+.sec-lbl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--g400);margin:20px 0 12px;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;gap:10px}
+.sec-lbl::after{content:'';-webkit-flex:1;flex:1;height:1px;background:var(--g200)}
+.divider{height:1px;background:var(--g200);margin:18px 0}
+/* ALERT */
+.alert{padding:12px 14px;border-radius:var(--rs);font-size:.84rem;line-height:1.5;margin-bottom:14px;display:-webkit-flex;display:flex;gap:8px}
+.alert-i{background:var(--blul);color:#0d47a1;border-left:3px solid var(--blu)}
+.alert-w{background:var(--orgl);color:#7f3300;border-left:3px solid var(--org)}
+/* TOAST */
+.toast{position:fixed;bottom:70px;left:50%;-webkit-transform:translateX(-50%) translateY(10px);transform:translateX(-50%) translateY(10px);background:#1A1A1A;color:#fff;padding:11px 20px;border-radius:24px;font-size:.86rem;font-weight:600;z-index:9999;opacity:0;-webkit-transition:opacity .2s,transform .2s;transition:opacity .2s,-webkit-transform .2s;pointer-events:none;white-space:nowrap;max-width:90vw}
+.toast.on{opacity:1;-webkit-transform:translateX(-50%) translateY(0);transform:translateX(-50%) translateY(0)}
+/* LOADING */
+.loading{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9998;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center}
+.loading.on{display:-webkit-flex;display:flex}
+.loading-box{background:#fff;border-radius:var(--r);padding:28px 36px;text-align:center}
+.spinner{width:40px;height:40px;border:4px solid var(--g200);border-top-color:var(--red);border-radius:50%;-webkit-animation:spin .7s linear infinite;animation:spin .7s linear infinite;margin:0 auto 14px}
+@-webkit-keyframes spin{to{-webkit-transform:rotate(360deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-weight:600;color:var(--g700);font-size:.9rem}
+/* HIDE */
+.hide{display:none!important}
+/* PRINT */
+@media print{.hdr,.step-nav,.toast,.loading,.no-print{display:none!important}.scr{-webkit-box-shadow:none;box-shadow:none;max-width:100%}.bod{overflow:visible}}
+/* DESKTOP */
+@media(min-width:600px){.scr{border-left:1px solid var(--g200);border-right:1px solid var(--g200)}}
+/* INPUTS */
+input[type=file]{display:none}
+</style>
+</head>
+<body>
+<!-- OVERLAYS -->
+<div class="loading" id="loading"><div class="loading-box"><div class="spinner"></div><div class="loading-txt" id="loading-txt">Laden...</div></div></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="file-input" accept=".xlsx,.xls">
+<input type="file" id="photo-input" accept="image/*" capture="environment" multiple>
+
+<!-- HOME -->
+<div class="scr on" id="scr-home">
+  <div class="hdr"><div class="hdr-logo">Q</div><div class="hdr-title">Q-Line Inspectie<span class="hdr-sub">Servicerapportage</span></div></div>
+  <div class="bod np">
+    <div class="hero"><div class="hero-bar"></div><h1>Welkom</h1><p>Q-Line inspectie &amp; rapportage voor servicemonteurs</p></div>
+    <div style="padding:18px 16px">
+      <div class="sec-lbl">Acties</div>
+      <button class="mi" id="btn-new" type="button">
+        <div class="mi-ico r">📋</div><div><h3>Nieuwe inspectie</h3><p>Start een nieuwe inspectieopdracht</p></div><div class="mi-arr">›</div>
+      </button>
+      <button class="mi hide" id="btn-resume" type="button">
+        <div class="mi-ico" style="background:var(--orgl)">⏸️</div><div><h3>Lopende inspectie hervatten</h3><p id="resume-lbl">Doorgaan</p></div><div class="mi-arr">›</div>
+      </button>
+      <button class="mi" id="btn-archive" type="button">
+        <div class="mi-ico b">📁</div><div><h3>Eerdere inspecties</h3><p>Archief bekijken &amp; exporteren</p></div><div class="mi-arr">›</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TYPE SELECTIE -->
+<div class="scr" id="scr-type">
+  <div class="hdr"><button class="btn-back show" id="back-type" type="button">‹</button><div class="hdr-logo">Q</div><div class="hdr-title">Type inspectie<span class="hdr-sub">Stap 1 van 3</span></div></div>
+  <div class="bod">
+    <p style="color:var(--g600);margin-bottom:18px;font-size:.88rem">Selecteer het type installatie:</p>
+    <button class="tc" data-type="trainingsmolen" type="button"><div class="tc-ico">🐴</div><div><h3>Trainingsmolen</h3><p>Horsewalker / Führanlage</p></div></button>
+    <button class="tc" data-type="beregening" type="button"><div class="tc-ico">💧</div><div><h3>Beregeningssysteem</h3><p>PART Rain Train</p></div></button>
+    <button class="tc" data-type="aquatrainer" type="button"><div class="tc-ico">🏊</div><div><h3>Aquatrainer</h3><p>Waterloper / hydrotherapie</p></div></button>
+    <div style="margin-top:24px"><button class="btn btn-p btn-full btn-lg" id="btn-type-next" type="button" disabled>Volgende →</button></div>
+  </div>
+</div>
+
+<!-- EXCEL LADEN -->
+<div class="scr" id="scr-excel">
+  <div class="hdr"><button class="btn-back show" id="back-excel" type="button">‹</button><div class="hdr-logo">Q</div><div class="hdr-title">Controlelijst laden<span class="hdr-sub">Stap 2 van 3</span></div></div>
+  <div class="bod">
+    <div class="alert alert-i"><span>ℹ️</span><div>Laad het Excel-bestand voor <strong id="type-name-lbl">dit type</strong>. Kolommen: Volgorde, Categorie, Controlepunt, Instructie, Antwoordtype...</div></div>
+    <div class="fdrop" id="file-drop">
+      <div class="fdrop-ico">📊</div><h3>Excel-bestand kiezen</h3><p>Tik hier om een .xlsx bestand te kiezen</p>
+    </div>
+    <div class="fload hide" id="file-loaded">
+      <div class="fi">✅</div><div><h3 id="file-name">bestand.xlsx</h3><p id="file-info">0 punten geladen</p></div>
+    </div>
+    <div class="hide" id="cat-preview">
+      <div class="sec-lbl">Categorieën</div>
+      <div id="cat-list"></div>
+    </div>
+    <div style="margin-top:20px"><button class="btn btn-p btn-full btn-lg" id="btn-excel-next" type="button" disabled>Volgende →</button></div>
+  </div>
+</div>
+
+<!-- KLANTGEGEVENS -->
+<div class="scr" id="scr-client">
+  <div class="hdr"><button class="btn-back show" id="back-client" type="button">‹</button><div class="hdr-logo">Q</div><div class="hdr-title">Klantgegevens<span class="hdr-sub">Stap 3 van 3</span></div></div>
+  <div class="bod">
+    <div class="sec-lbl">Klant &amp; locatie</div>
+    <div class="fg"><label class="lbl">Klantnaam <span class="req">*</span></label><input class="inp" type="text" id="c-naam" placeholder="Naam klant of bedrijf"></div>
+    <div class="fg"><label class="lbl">Locatie <span class="req">*</span></label><input class="inp" type="text" id="c-locatie" placeholder="Adres of omschrijving"></div>
+    <div class="two">
+      <div class="fg"><label class="lbl">Contactpersoon</label><input class="inp" type="text" id="c-contact" placeholder="Naam"></div>
+      <div class="fg"><label class="lbl">Telefoon</label><input class="inp" type="tel" id="c-tel" placeholder="+31..."></div>
+    </div>
+    <div class="fg"><label class="lbl">E-mail</label><input class="inp" type="email" id="c-email" placeholder="email@..."></div>
+    <div class="divider"></div>
+    <div class="sec-lbl">Installatie &amp; monteur</div>
+    <div class="two">
+      <div class="fg"><label class="lbl">Serienummer</label><input class="inp" type="text" id="c-serie" placeholder="S/N"></div>
+      <div class="fg"><label class="lbl">Datum <span class="req">*</span></label><input class="inp" type="date" id="c-datum"></div>
+    </div>
+    <div class="fg"><label class="lbl">Monteur <span class="req">*</span></label><input class="inp" type="text" id="c-monteur" placeholder="Naam monteur"></div>
+    <div class="fg"><label class="lbl">Opmerkingen vooraf</label><textarea class="ta" id="c-opm" placeholder="Bijzonderheden, bekende problemen..." rows="3"></textarea></div>
+    <div style="margin-top:20px"><button class="btn btn-p btn-full btn-lg" id="btn-start" type="button">Inspectie starten →</button></div>
+  </div>
+</div>
+
+<!-- STAP SCHERM -->
+<div class="scr" id="scr-step">
+  <div class="hdr"><button class="btn-back show" id="back-step" type="button">‹</button><div class="hdr-logo">Q</div><div class="hdr-title"><span id="step-client">Inspectie</span><span class="hdr-sub" id="step-type"></span></div></div>
+  <div class="prog-wrap"><div class="prog-info"><span class="prog-cat" id="prog-cat">Categorie</span><span class="prog-cnt" id="prog-cnt">0/0</span></div><div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div></div>
+  <div class="bod" id="step-content"></div>
+  <div class="step-nav">
+    <button class="btn btn-s" id="btn-prev" type="button">‹ Vorige</button>
+    <button class="btn btn-p" id="btn-next" type="button">Volgende ›</button>
+  </div>
+</div>
+
+<!-- ONDERHOUD -->
+<div class="scr" id="scr-maint">
+  <div class="hdr"><div class="hdr-logo">Q</div><div class="hdr-title">Onderhoud uitgevoerd<span class="hdr-sub">Afronden</span></div></div>
+  <div class="bod">
+    <p style="color:var(--g600);margin-bottom:16px;font-size:.88rem">Selecteer uitgevoerd onderhoud:</p>
+    <button class="chk" data-key="gereinigd" type="button"><div class="chk-box">✓</div><span>🧹 Gereinigd</span></button>
+    <button class="chk" data-key="gesmeerd" type="button"><div class="chk-box">✓</div><span>🛢️ Gesmeerd</span></button>
+    <button class="chk" data-key="afgesteld" type="button"><div class="chk-box">✓</div><span>🔧 Afgesteld</span></button>
+    <button class="chk" data-key="onderdelen" type="button"><div class="chk-box">✓</div><span>🔩 Onderdelen vervangen</span></button>
+    <button class="chk" data-key="software" type="button"><div class="chk-box">✓</div><span>💻 Software gecontroleerd</span></button>
+    <button class="chk" data-key="overig" type="button"><div class="chk-box">✓</div><span>📝 Overig</span></button>
+    <div class="hide" id="overig-field" style="margin-top:10px"><textarea class="ta" id="overig-txt" placeholder="Omschrijf overig onderhoud..." rows="3"></textarea></div>
+    <div style="margin-top:24px"><button class="btn btn-p btn-full btn-lg" id="btn-to-eval" type="button">Volgende →</button></div>
+  </div>
+</div>
+
+<!-- EVALUATIE -->
+<div class="scr" id="scr-eval">
+  <div class="hdr"><div class="hdr-logo">Q</div><div class="hdr-title">Eindbeoordeling<span class="hdr-sub">Afronden</span></div></div>
+  <div class="bod">
+    <p style="color:var(--g600);margin-bottom:16px;font-size:.88rem">Geef de eindbeoordeling:</p>
+    <button class="eo" data-eval="goedgekeurd" data-cls="sg" type="button"><div class="eo-radio"></div><div><strong style="color:var(--grn)">✅ Goedgekeurd</strong><br><small style="color:var(--g600)">Voldoet aan alle eisen</small></div></button>
+    <button class="eo" data-eval="voorbehoud" data-cls="so" type="button"><div class="eo-radio"></div><div><strong style="color:var(--org)">⚠️ Goedgekeurd onder voorbehoud</strong><br><small style="color:var(--g600)">Kleine afwijkingen</small></div></button>
+    <button class="eo" data-eval="reparatie" data-cls="sr" type="button"><div class="eo-radio"></div><div><strong style="color:var(--red)">🔴 Reparatie noodzakelijk</strong><br><small style="color:var(--g600)">Defect, reparatie plannen</small></div></button>
+    <button class="eo" data-eval="buiten_bedrijf" data-cls="sk" type="button"><div class="eo-radio"></div><div><strong>⛔ Buiten bedrijf stellen</strong><br><small style="color:var(--g600)">Onveilig, direct stilzetten</small></div></button>
+    <div class="divider"></div>
+    <div class="fg"><label class="lbl">Advies aan klant</label><textarea class="ta" id="eval-advies" rows="3" placeholder="Aanbevelingen..."></textarea></div>
+    <div class="fg"><label class="lbl">Benodigde onderdelen</label><textarea class="ta" id="eval-onderdelen" rows="2" placeholder="Onderdelen voor reparatie..."></textarea></div>
+    <div class="fg"><label class="lbl">Vervolgactie</label><select class="sel" id="eval-vervolgactie"><option value="">— Geen —</option><option value="monteur_terugkomen">Monteur terugkomen</option><option value="klant_contact">Klant neemt contact op</option><option value="offerte_sturen">Offerte sturen</option><option value="preventief_onderhoud">Preventief onderhoud inplannen</option></select></div>
+    <div class="fg"><label class="lbl">Vervolgdatum</label><input class="inp" type="date" id="eval-datum"></div>
+    <div style="margin-top:20px"><button class="btn btn-p btn-full btn-lg" id="btn-to-sig" type="button">Volgende →</button></div>
+  </div>
+</div>
+
+<!-- HANDTEKENINGEN -->
+<div class="scr" id="scr-sig">
+  <div class="hdr"><div class="hdr-logo">Q</div><div class="hdr-title">Handtekeningen<span class="hdr-sub">Afronden</span></div></div>
+  <div class="bod">
+    <div class="sec-lbl">Handtekening monteur</div>
+    <div class="sig-wrap"><canvas class="sig-canvas" id="sig-monteur" height="150"></canvas><div class="sig-hint" id="sig-m-hint">Teken hier</div></div>
+    <div style="margin-bottom:22px"><button class="btn btn-g btn-sm no-print" id="clear-m" type="button">✕ Wissen</button></div>
+    <div class="sec-lbl">Handtekening klant</div>
+    <div class="sig-wrap"><canvas class="sig-canvas" id="sig-klant" height="150"></canvas><div class="sig-hint" id="sig-k-hint">Klant tekent hier</div></div>
+    <div style="margin-bottom:28px"><button class="btn btn-g btn-sm no-print" id="clear-k" type="button">✕ Wissen</button></div>
+    <button class="btn btn-grn btn-full btn-lg" id="btn-finalize" type="button">Inspectie afronden ✓</button>
+  </div>
+</div>
+
+<!-- SAMENVATTING -->
+<div class="scr" id="scr-summary">
+  <div class="hdr"><div class="hdr-logo">Q</div><div class="hdr-title">Samenvatting<span class="hdr-sub" id="sum-date"></span></div></div>
+  <div class="bod">
+    <div class="stat-grid" id="sum-stats"></div>
+    <div id="sum-eval" style="margin-bottom:14px"></div>
+    <div class="hide" id="sum-actions">
+      <div class="sec-lbl">⚠️ Afwijkingen</div>
+      <div id="sum-action-list"></div>
+    </div>
+    <div class="sec-lbl">Export</div>
+    <div style="display:-webkit-flex;display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+      <button class="btn btn-p btn-full" id="btn-report" type="button">📄 Rapport bekijken</button>
+      <button class="btn btn-o btn-full" id="btn-print" type="button">🖨️ Afdrukken</button>
+      <button class="btn btn-g btn-full" id="btn-email" type="button">✉️ E-mail voorbereiden</button>
+    </div>
+    <button class="btn btn-s btn-full" id="btn-home-from-sum" type="button">🏠 Terug naar start</button>
+  </div>
+</div>
+
+<!-- RAPPORT -->
+<div class="scr" id="scr-report">
+  <div class="hdr"><button class="btn-back show" id="back-report" type="button">‹</button><div class="hdr-logo">Q</div><div class="hdr-title">Servicerapport<span class="hdr-sub">Q-Line B.V.</span></div></div>
+  <div class="bod" id="report-content"></div>
+</div>
+
+<!-- ARCHIEF -->
+<div class="scr" id="scr-archive">
+  <div class="hdr"><button class="btn-back show" id="back-archive" type="button">‹</button><div class="hdr-logo">Q</div><div class="hdr-title">Archief<span class="hdr-sub">Eerdere inspecties</span></div></div>
+  <div class="bod" id="archive-list"></div>
+</div>
+<script>
+// ============================================================
+// XLSX PARSER - iOS-safe, geen async/await, geen DecompressionStream
+// ============================================================
+var XLSX = (function() {
+
+  function ab2str(buf, off, len) {
+    var a = new Uint8Array(buf, off, len), s = '';
+    for (var i = 0; i < a.length; i++) s += String.fromCharCode(a[i]);
+    return s;
+  }
+
+  function u16(dv, off) { return dv.getUint16(off, true); }
+  function u32(dv, off) { return dv.getUint32(off, true); }
+
+  function parseZip(buf) {
+    var dv = new DataView(buf), eocd = -1;
+    for (var i = buf.byteLength - 22; i >= 0; i--) {
+      if (u32(dv, i) === 0x06054b50) { eocd = i; break; }
+    }
+    if (eocd < 0) throw new Error('Geen geldig XLSX bestand');
+    var cdOff = u32(dv, eocd + 16), cdSize = u32(dv, eocd + 12);
+    var files = {}, pos = cdOff;
+    while (pos < cdOff + cdSize) {
+      if (u32(dv, pos) !== 0x02014b50) break;
+      var method = u16(dv, pos + 10);
+      var cSize = u32(dv, pos + 20), uSize = u32(dv, pos + 24);
+      var fnLen = u16(dv, pos + 28), extLen = u16(dv, pos + 30), cmtLen = u16(dv, pos + 32);
+      var lOff = u32(dv, pos + 42);
+      var name = ab2str(buf, pos + 46, fnLen);
+      pos += 46 + fnLen + extLen + cmtLen;
+      var lhFn = u16(dv, lOff + 26), lhEx = u16(dv, lOff + 28);
+      files[name] = { method: method, cSize: cSize, uSize: uSize, dataOff: lOff + 30 + lhFn + lhEx };
+    }
+    return files;
+  }
+
+  // Pure-JS DEFLATE inflate
+  function inflate(data) {
+    var pos = 0;
+    function bits(n) {
+      var v = 0;
+      for (var i = 0; i < n; i++) { v |= ((data[pos >> 3] >> (pos & 7)) & 1) << i; pos++; }
+      return v;
+    }
+    function byteAlign() { pos = (pos + 7) & ~7; }
+    function readU16() { var v = data[pos>>3] | (data[(pos>>3)+1]<<8); pos=(pos>>3)+2<<3; return v; }
+
+    function buildTree(lens) {
+      var maxL = 0;
+      for (var i = 0; i < lens.length; i++) if (lens[i] > maxL) maxL = lens[i];
+      var cnt = [], nc = [], tbl = {};
+      for (var i = 0; i <= maxL; i++) cnt[i] = 0;
+      for (var i = 0; i < lens.length; i++) if (lens[i]) cnt[lens[i]]++;
+      nc[0] = nc[1] = 0;
+      for (var i = 1; i <= maxL; i++) nc[i+1] = (nc[i] + cnt[i]) << 1;
+      for (var i = 0; i < lens.length; i++) {
+        var l = lens[i];
+        if (l) { var code = nc[l]++ | (1 << l); tbl[code.toString(2)] = i; }
+      }
+      return { tbl: tbl, maxL: maxL };
+    }
+
+    function readH(tree) {
+      var code = 1;
+      for (var i = 0; i < tree.maxL; i++) {
+        code = (code << 1) | bits(1);
+        var k = code.toString(2);
+        if (k in tree.tbl) return tree.tbl[k];
+      }
+      return 0;
+    }
+
+    var out = [], bfinal = 0;
+    var LE = [3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258];
+    var LEX = [0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0];
+    var DE = [1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577];
+    var DEX = [0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13];
+    var ORDER = [16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15];
+
+    while (!bfinal) {
+      bfinal = bits(1);
+      var btype = bits(2);
+      if (btype === 0) {
+        byteAlign();
+        var len = readU16(); readU16();
+        for (var i = 0; i < len; i++) { out.push(data[pos>>3]); pos=(pos>>3)+1<<3; }
+      } else {
+        var litT, distT;
+        if (btype === 2) {
+          var hlit = bits(5)+257, hdist = bits(5)+1, hclen = bits(4)+4;
+          var clLens = []; for (var i=0;i<19;i++) clLens[i]=0;
+          for (var i=0;i<hclen;i++) clLens[ORDER[i]]=bits(3);
+          var clT = buildTree(clLens), allL = [];
+          while (allL.length < hlit+hdist) {
+            var s = readH(clT);
+            if (s < 16) { allL.push(s); }
+            else if (s===16) { var rep=allL[allL.length-1]; for(var n=bits(2)+3;n--;) allL.push(rep); }
+            else if (s===17) { for(var n=bits(3)+3;n--;) allL.push(0); }
+            else { for(var n=bits(7)+11;n--;) allL.push(0); }
+          }
+          litT = buildTree(allL.slice(0,hlit));
+          distT = buildTree(allL.slice(hlit));
+        } else {
+          var ll=[]; for(var i=0;i<144;i++)ll.push(8); for(var i=144;i<256;i++)ll.push(9); for(var i=256;i<280;i++)ll.push(7); for(var i=280;i<288;i++)ll.push(8);
+          litT = buildTree(ll);
+          var dl=[]; for(var i=0;i<32;i++) dl.push(5);
+          distT = buildTree(dl);
+        }
+        while (true) {
+          var sym = readH(litT);
+          if (sym < 256) { out.push(sym); }
+          else if (sym === 256) { break; }
+          else {
+            var li = sym-257;
+            var len = LE[li] + bits(LEX[li]);
+            var di = readH(distT);
+            var dist = DE[di] + bits(DEX[di]);
+            for (var i=0;i<len;i++) out.push(out[out.length-dist]);
+          }
+        }
+      }
+    }
+    return new Uint8Array(out);
+  }
+
+  function getFile(buf, entry) {
+    if (entry.method === 0) {
+      return new Uint8Array(buf, entry.dataOff, entry.uSize);
+    }
+    var raw = new Uint8Array(buf, entry.dataOff, entry.cSize);
+    return inflate(raw);
+  }
+
+  function decode(arr) {
+    var s = '';
+    for (var i = 0; i < arr.length; i++) {
+      var b = arr[i];
+      if (b < 0x80) { s += String.fromCharCode(b); }
+      else if (b < 0xE0) { s += String.fromCharCode(((b&0x1F)<<6)|(arr[++i]&0x3F)); }
+      else if (b < 0xF0) { s += String.fromCharCode(((b&0xF)<<12)|((arr[++i]&0x3F)<<6)|(arr[++i]&0x3F)); }
+      else { var cp=(((b&7)<<18)|((arr[++i]&0x3F)<<12)|((arr[++i]&0x3F)<<6)|(arr[++i]&0x3F))-0x10000; s+=String.fromCharCode(0xD800+(cp>>10),0xDC00+(cp&0x3FF)); }
+    }
+    return s;
+  }
+
+  function unesc(s) {
+    return s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'");
+  }
+
+  function parseSharedStrings(xml) {
+    var strs = [], re = /<si>[\s\S]*?<\/si>/g, m;
+    while ((m = re.exec(xml)) !== null) {
+      var tRe = /<t(?:[^>]*)>([\s\S]*?)<\/t>/g, tm, text = '';
+      while ((tm = tRe.exec(m[0])) !== null) text += tm[1];
+      strs.push(unesc(text));
+    }
+    return strs;
+  }
+
+  function parseSheet(xml, ss) {
+    var rows = {}, rowRe = /<row[^>]+r="(\d+)"[^>]*>([\s\S]*?)<\/row>/g, rm;
+    while ((rm = rowRe.exec(xml)) !== null) {
+      var rn = parseInt(rm[1], 10), cells = {};
+      var cRe = /<c\s+r="([A-Z]+)\d+"([^>]*)>([\s\S]*?)<\/c>/g, cm;
+      while ((cm = cRe.exec(rm[2])) !== null) {
+        var col=cm[1], attr=cm[2], inner=cm[3];
+        var tM=/\bt="([^"]+)"/.exec(attr), type=tM?tM[1]:'';
+        var vM=/<v>([\s\S]*?)<\/v>/.exec(inner);
+        var tM2=/<t(?:[^>]*)>([\s\S]*?)<\/t>/.exec(inner);
+        var val='';
+        if (vM) {
+          if (type==='s') val=ss[parseInt(vM[1],10)]||'';
+          else if (type==='inlineStr'&&tM2) val=unesc(tM2[1]);
+          else val=unesc(vM[1]);
+        } else if (type==='inlineStr'&&tM2) val=unesc(tM2[1]);
+        cells[col]=val;
+      }
+      rows[rn]=cells;
+    }
+    return rows;
+  }
+
+  function isAppFormat(rows) {
+    var r1=rows[1]||{}, r2=rows[2]||{};
+    var h=((r1['A']||'')+'').toLowerCase();
+    var hb=((r1['B']||'')+'').toLowerCase();
+    return h.indexOf('volgorde')>=0||hb.indexOf('categorie')>=0||(r2['B']&&r2['C']);
+  }
+
+  function parseAppFormat(rows) {
+    var res=[], rns=Object.keys(rows).map(Number).sort(function(a,b){return a-b;});
+    for (var i=0;i<rns.length;i++) {
+      var rn=rns[i]; if(rn===1) continue;
+      var r=rows[rn]; if(!r['C']||!(r['C']+'').trim()) continue;
+      var type=((r['E']||'')+'').toUpperCase().trim();
+      if (['OK_NOK','JA_NEE','NUMMER','TEKST','KEUZELIJST'].indexOf(type)<0) type='OK_NOK';
+      var fNee=function(v){return ((v||'')+'').toUpperCase().trim()==='NEE';};
+      var fJa=function(v){return ((v||'')+'').toUpperCase().trim()==='JA';};
+      res.push({
+        volgorde:rn-1, categorie:r['B']||'', controlepunt:r['C']||'',
+        instructie:r['D']||'', antwoordtype:type,
+        verplicht:!fNee(r['F']), opmerking_toegestaan:!fNee(r['G']),
+        foto_verplicht:fJa(r['H']), meetwaarde:fJa(r['I']), eenheid:r['J']||''
+      });
+    }
+    return res;
+  }
+
+  function parseLegacy(rows) {
+    var rns=Object.keys(rows).map(Number).sort(function(a,b){return a-b;});
+    var skipWords=['controlepunt','ok','nok','opmerking','status','gecontroleerd door','datum','omschrijving',
+      'gecotroleerde','checked','afkeur','nvt','waarde','foto','signature','description'];
+    function isSkip(r) {
+      var vals=Object.keys(r).map(function(k){return (r[k]||'').toString().toLowerCase().trim();});
+      return vals.some(function(v){return skipWords.some(function(s){return v===s;})|| v.indexOf("fotos")===0||v.indexOf("foto maken")===0;});
+    }
+    var res=[], cat='Algemeen', vol=1;
+    var knownCats=['aquatrainer','eps een','eps systeem','pompstation','zandfiltering','warmtepomp'];
+    for (var i=0;i<rns.length;i++) {
+      var rn=rns[i], r=rows[rn];
+      var vals=Object.keys(r).map(function(k){return r[k];}).filter(function(v){return v&&(v+'').trim();});
+      if (!vals.length) continue;
+      if (isSkip(r)) continue;
+      var a=(r['A']||'').toString().trim();
+      var b=(r['B']||'').toString().trim();
+      // Categorierij: col A gevuld, begint met bullet of alleen in col A
+      if (a && !b && !r['C']) {
+        if (knownCats.indexOf(a.toLowerCase())>=0) { cat=a; continue; }
+        if (a.charAt(0)==='•'||a.charAt(0)==='-') { cat=a.replace(/^[•\-\*\s]+/,'').trim()||cat; continue; }
+      }
+      if (a && a.charAt(0)==='•') { cat=a.replace(/^[•\-\*\s]+/,'').trim()||cat; continue; }
+      // Inspectiepunt
+      var pt=b||a, inst=b?a:'';
+      if (b&&a&&b!==a) { pt=a; inst=b; } // Aquatrainer: A=item, B=instructie — maar check
+      // Als B de instructie is (longer tekst), A het punt
+      if (a.length<b.length&&b.length>10) { pt=a; inst=b; } else { pt=b||a; inst=b&&b!==a?'':''; }
+      if (!pt||pt.length<3) continue;
+      if (knownCats.indexOf(pt.toLowerCase())>=0&&!inst) { cat=pt; continue; }
+      var meetStr=(pt+' '+inst).toLowerCase();
+      var hasMeet=/\b(volt|ampere|bar|druk|stroom|meten|m3|m³|uren?stand)\b/.test(meetStr);
+      var eenh=/\bvolt\b/.test(meetStr)?'Volt':/\bampere\b/.test(meetStr)?'Ampere':/\bbar\b/.test(meetStr)?'bar':/\bm3\b|m³/.test(meetStr)?'m³/u':/\buren?stand\b/.test(meetStr)?'uren':'';
+      res.push({volgorde:vol++,categorie:cat,controlepunt:pt,instructie:inst,antwoordtype:'OK_NOK',
+        verplicht:true,opmerking_toegestaan:true,foto_verplicht:false,meetwaarde:hasMeet&&eenh!=='',eenheid:eenh});
+    }
+    return res;
+  }
+
+  function parse(buf) {
+    var files=parseZip(buf);
+    var ss=[];
+    if (files['xl/sharedStrings.xml']) {
+      var ssBuf=getFile(buf,files['xl/sharedStrings.xml']);
+      ss=parseSharedStrings(decode(ssBuf));
+    }
+    // Zoek de inspectie-sheet (niet Berekening/Blad2/Inclusief)
+    var sheetKeys=Object.keys(files).filter(function(k){return k.indexOf('xl/worksheets/sheet')===0&&k.slice(-4)==='.xml';}).sort();
+    var skip=['berekening','blad2','inclusief'];
+    var sheetKey=sheetKeys[0];
+    if (files['xl/workbook.xml']) {
+      var wbBuf=getFile(buf,files['xl/workbook.xml']);
+      var wbXml=decode(wbBuf);
+      var nm=/<sheet[^>]+name="([^"]+)"/g, sm, idx=0;
+      while ((sm=nm.exec(wbXml))!==null) {
+        idx++;
+        var n=sm[1].toLowerCase();
+        var isSkipSheet=skip.some(function(s){return n.indexOf(s)>=0;});
+        if (!isSkipSheet) { var k='xl/worksheets/sheet'+idx+'.xml'; if(files[k]){sheetKey=k;break;} }
+      }
+    }
+    if (!sheetKey) throw new Error('Geen werkblad gevonden');
+    var shBuf=getFile(buf,files[sheetKey]);
+    var shXml=decode(shBuf);
+    var rows=parseSheet(shXml,ss);
+    var res=isAppFormat(rows)?parseAppFormat(rows):parseLegacy(rows);
+    if (!res.length) throw new Error('Geen inspectiepunten gevonden. Controleer het Excel-bestand.');
+    return res;
+  }
+
+  return { parse: parse };
+})();
+
+// ============================================================
+// APP - geen arrow functions, geen optional chaining, geen const in loops
+// ============================================================
+var SK='qline_current', AK='qline_archive';
+var ST={type:null,fileName:null,points:[],client:{},currentStep:0,answers:{},
+  maintenance:{},maintOverig:'',evaluation:null,evalAdvies:'',evalOnderdelen:'',
+  evalVervolgactie:'',evalDatum:'',sigMonteur:null,sigKlant:null,id:null,
+  startedAt:null,completedAt:null};
+var currentPhotoIdx=null;
+var sigDrawing={m:false,k:false};
+var sigLast={mx:0,my:0,kx:0,ky:0};
+
+function G(id){return document.getElementById(id);}
+function show(id){G(id).classList.add('on');}
+function hide(id){G(id).classList.remove('on');}
+function setHide(id,h){if(h)G(id).classList.add('hide');else G(id).classList.remove('hide');}
+
+function showScr(id) {
+  var all=['scr-home','scr-type','scr-excel','scr-client','scr-step','scr-maint','scr-eval','scr-sig','scr-summary','scr-report','scr-archive'];
+  for (var i=0;i<all.length;i++) G(all[i]).classList.remove('on');
+  G(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+
+function showToast(msg) {
+  var el=G('toast'); el.textContent=msg; el.classList.add('on');
+  setTimeout(function(){el.classList.remove('on');},2200);
+}
+
+function showLoad(msg){G('loading-txt').textContent=msg||'Laden...';G('loading').classList.add('on');}
+function hideLoad(){G('loading').classList.remove('on');}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function saveState() {
+  try { localStorage.setItem(SK, JSON.stringify(ST)); } catch(e) {}
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  try {
+    var parts=d.split('-');
+    if (parts.length===3) return parts[2]+'-'+parts[1]+'-'+parts[0];
+  } catch(e) {}
+  return d;
+}
+
+// ── INIT ──────────────────────────────────────────────────
+function init() {
+  // Datum vandaag
+  var today=new Date();
+  var dd=String(today.getDate()).padStart(2,'0');
+  var mm=String(today.getMonth()+1).padStart(2,'0');
+  G('c-datum').value=today.getFullYear()+'-'+mm+'-'+dd;
+
+  // Check lopende inspectie
+  checkResume();
+
+  // Navigatie knoppen
+  G('btn-new').onclick=function(){startNew();};
+  G('btn-resume').onclick=function(){resumeInsp();};
+  G('btn-archive').onclick=function(){showArchive();};
+  G('back-type').onclick=function(){showScr('scr-home');};
+  G('btn-type-next').onclick=function(){goToExcel();};
+  G('back-excel').onclick=function(){showScr('scr-type');};
+  G('btn-excel-next').onclick=function(){showScr('scr-client');};
+  G('back-client').onclick=function(){showScr('scr-excel');};
+  G('btn-start').onclick=function(){startInspection();};
+  G('back-step').onclick=function(){confirmAbort();};
+  G('btn-prev').onclick=function(){prevStep();};
+  G('btn-next').onclick=function(){nextStep();};
+  G('btn-to-eval').onclick=function(){goToEval();};
+  G('btn-to-sig').onclick=function(){goToSig();};
+  G('btn-finalize').onclick=function(){finalize();};
+  G('btn-report').onclick=function(){showReport();};
+  G('btn-print').onclick=function(){doPrint();};
+  G('btn-email').onclick=function(){doEmail();};
+  G('btn-home-from-sum').onclick=function(){checkResume();showScr('scr-home');};
+  G('back-report').onclick=function(){showScr('scr-summary');};
+  G('back-archive').onclick=function(){showScr('scr-home');};
+
+  // Type cards
+  var cards=document.querySelectorAll('.tc');
+  for (var i=0;i<cards.length;i++) {
+    (function(card) {
+      card.onclick=function(){selectType(card.getAttribute('data-type'));};
+    })(cards[i]);
+  }
+
+  // Excel file input
+  G('file-input').onchange=function(e) {
+    if (e.target.files&&e.target.files[0]) loadExcel(e.target.files[0]);
+  };
+  G('file-drop').onclick=function(){G('file-input').click();};
+
+  // Photo input
+  G('photo-input').onchange=function(e) {
+    if (e.target.files&&e.target.files.length) handlePhotos(e.target.files);
+  };
+
+  // Onderhoud checkboxes
+  var chks=document.querySelectorAll('.chk');
+  for (var i=0;i<chks.length;i++) {
+    (function(chk) {
+      chk.onclick=function(){toggleMaint(chk);};
+    })(chks[i]);
+  }
+
+  // Eval opties
+  var eos=document.querySelectorAll('.eo');
+  for (var i=0;i<eos.length;i++) {
+    (function(eo) {
+      eo.onclick=function(){selectEval(eo);};
+    })(eos[i]);
+  }
+
+  // Handtekeningen
+  G('clear-m').onclick=function(){clearSig('sig-monteur','sig-m-hint');};
+  G('clear-k').onclick=function(){clearSig('sig-klant','sig-k-hint');};
+  setupSig('sig-monteur','m');
+  setupSig('sig-klant','k');
+}
+
+// ── RESUME ────────────────────────────────────────────────
+function checkResume() {
+  try {
+    var saved=localStorage.getItem(SK);
+    if (saved) {
+      var s=JSON.parse(saved);
+      if (s&&s.points&&s.points.length>0&&!s.completedAt) {
+        var nm=(s.client&&s.client.naam)||'Onbekend';
+        G('resume-lbl').textContent=nm+' — '+(s.type||'');
+        setHide('btn-resume',false);
+        return;
+      }
+    }
+  } catch(e) {}
+  setHide('btn-resume',true);
+}
+
+function resumeInsp() {
+  try {
+    var saved=localStorage.getItem(SK);
+    if (!saved) return;
+    ST=JSON.parse(saved);
+    showScr('scr-step');
+    renderStep();
+  } catch(e) { showToast('Fout bij herstellen'); }
+}
+
+// ── STARTEN ───────────────────────────────────────────────
+function startNew() {
+  ST={type:null,fileName:null,points:[],client:{},currentStep:0,answers:{},
+    maintenance:{},maintOverig:'',evaluation:null,evalAdvies:'',evalOnderdelen:'',
+    evalVervolgactie:'',evalDatum:'',sigMonteur:null,sigKlant:null,
+    id:'INS-'+Date.now(),startedAt:new Date().toISOString(),completedAt:null};
+  var cards=document.querySelectorAll('.tc');
+  for (var i=0;i<cards.length;i++) cards[i].classList.remove('sel');
+  G('btn-type-next').disabled=true;
+  showScr('scr-type');
+}
+
+function selectType(type) {
+  ST.type=type;
+  var cards=document.querySelectorAll('.tc');
+  for (var i=0;i<cards.length;i++) {
+    if (cards[i].getAttribute('data-type')===type) cards[i].classList.add('sel');
+    else cards[i].classList.remove('sel');
+  }
+  G('btn-type-next').disabled=false;
+  var names={trainingsmolen:'Trainingsmolen',beregening:'Beregeningssysteem',aquatrainer:'Aquatrainer'};
+  G('type-name-lbl').textContent=names[type]||type;
+}
+
+function goToExcel() {
+  if (!ST.type) return;
+  setHide('file-loaded',true); setHide('cat-preview',true);
+  G('file-drop').classList.remove('hide');
+  G('btn-excel-next').disabled=true;
+  showScr('scr-excel');
+}
+
+// ── EXCEL LADEN ───────────────────────────────────────────
+function loadExcel(file) {
+  showLoad('Excel laden...');
+  var reader=new FileReader();
+  reader.onload=function(e) {
+    try {
+      var pts=XLSX.parse(e.target.result);
+      ST.points=pts;
+      ST.fileName=file.name;
+      G('file-drop').classList.add('hide');
+      setHide('file-loaded',false);
+      G('file-name').textContent=file.name;
+      G('file-info').textContent=pts.length+' inspectiepunten geladen';
+      // Categorieën
+      var cats={};
+      for (var i=0;i<pts.length;i++) {
+        var c=pts[i].categorie||'(geen)';
+        cats[c]=(cats[c]||0)+1;
+      }
+      var html='';
+      for (var c in cats) {
+        html+='<div style="display:-webkit-flex;display:flex;-webkit-justify-content:space-between;justify-content:space-between;padding:9px 12px;background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--rs);margin-bottom:7px"><span style="font-weight:600">'+esc(c)+'</span><span class="badge bk">'+cats[c]+'</span></div>';
+      }
+      G('cat-list').innerHTML=html;
+      setHide('cat-preview',false);
+      G('btn-excel-next').disabled=false;
+      showToast(pts.length+' punten geladen ✓');
+    } catch(err) {
+      alert('Fout bij laden Excel:\n'+err.message);
+    }
+    hideLoad();
+  };
+  reader.onerror=function(){hideLoad();alert('Kan bestand niet lezen.');};
+  reader.readAsArrayBuffer(file);
+}
+
+// ── INSPECTIE STARTEN ─────────────────────────────────────
+function startInspection() {
+  var naam=G('c-naam').value.trim();
+  var locatie=G('c-locatie').value.trim();
+  var monteur=G('c-monteur').value.trim();
+  var datum=G('c-datum').value;
+  if (!naam||!locatie||!monteur||!datum) { showToast('Vul verplichte velden in (*)'); return; }
+  ST.client={naam:naam,locatie:locatie,monteur:monteur,datum:datum,
+    contact:G('c-contact').value.trim(),tel:G('c-tel').value.trim(),
+    email:G('c-email').value.trim(),serie:G('c-serie').value.trim(),
+    opmerkingen:G('c-opm').value.trim()};
+  ST.currentStep=0;
+  saveState();
+  showScr('scr-step');
+  renderStep();
+}
+
+// ── WIZARD ────────────────────────────────────────────────
+function renderStep() {
+  var pts=ST.points;
+  if (!pts.length) return;
+  var idx=ST.currentStep, pt=pts[idx], ans=ST.answers[idx]||{};
+  var tnm={trainingsmolen:'Trainingsmolen',beregening:'Beregening',aquatrainer:'Aquatrainer'};
+  G('step-client').textContent=ST.client.naam||'Inspectie';
+  G('step-type').textContent=tnm[ST.type]||ST.type||'';
+  var pct=Math.round(idx/pts.length*100);
+  G('prog-fill').style.width=pct+'%';
+  G('prog-cnt').textContent=(idx+1)+' / '+pts.length;
+  G('prog-cat').textContent=pt.categorie||'Inspectie';
+  G('btn-prev').disabled=(idx===0);
+  G('btn-prev').style.opacity=idx===0?'0.4':'1';
+  G('btn-next').textContent=idx===pts.length-1?'Afronden →':'Volgende ›';
+
+  var html='<div class="step-cat">'+esc(pt.categorie)+'</div>';
+  html+='<div class="step-q">'+esc(pt.controlepunt)+'</div>';
+  if (pt.instructie) html+='<div class="step-hint">💡 '+esc(pt.instructie)+'</div>';
+
+  // Antwoord
+  var type=pt.antwoordtype, cur=ans.value||'';
+  var reqMark=pt.verplicht?' <span style="color:var(--red)">*</span>':'';
+  if (type==='OK_NOK') {
+    html+='<div class="ans-lbl">Beoordeling'+reqMark+'</div><div class="ans-row">';
+    html+='<button class="ans-btn ans-ok'+(cur==='OK'?' sel':'')+('" onclick="setAns(\'OK\')" type="button">✓ OK</button>');
+    html+='<button class="ans-btn ans-nok'+(cur==='NOK'?' sel':'')+('" onclick="setAns(\'NOK\')" type="button">✗ Niet OK</button>');
+    html+='</div>';
+  } else if (type==='JA_NEE') {
+    html+='<div class="ans-lbl">Antwoord'+reqMark+'</div><div class="ans-row">';
+    html+='<button class="ans-btn ans-ja'+(cur==='JA'?' sel':'')+('" onclick="setAns(\'JA\')" type="button">✓ Ja</button>');
+    html+='<button class="ans-btn ans-nee'+(cur==='NEE'?' sel':'')+('" onclick="setAns(\'NEE\')" type="button">✗ Nee</button>');
+    html+='</div>';
+  } else if (type==='NUMMER') {
+    html+='<div class="fg"><label class="lbl">Waarde'+reqMark+'</label><input class="inp" type="number" id="ans-inp" value="'+esc(cur)+'" onchange="setAns(this.value)" placeholder="Voer waarde in"></div>';
+  } else if (type==='TEKST') {
+    html+='<div class="fg"><label class="lbl">Antwoord'+reqMark+'</label><textarea class="ta" id="ans-inp" onchange="setAns(this.value)" rows="3">'+esc(cur)+'</textarea></div>';
+  } else if (type==='KEUZELIJST') {
+    var opts=pt.instructie?pt.instructie.split(/[,;|]/).map(function(s){return s.trim();}).filter(function(s){return s;}) : ['Optie 1','Optie 2'];
+    html+='<div class="ans-lbl">Keuze'+reqMark+'</div><div class="keuze-wrap">';
+    for (var i=0;i<opts.length;i++) {
+      var o=opts[i];
+      html+='<button class="keuze-btn'+(cur===o?' sel':'')+('" onclick="setAns(\''+esc(o)+'\')" type="button">'+esc(o)+'</button>');
+    }
+    html+='</div>';
+  } else {
+    html+='<div class="fg"><label class="lbl">Antwoord'+reqMark+'</label><input class="inp" type="text" id="ans-inp" value="'+esc(cur)+'" onchange="setAns(this.value)" placeholder="Antwoord..."></div>';
+  }
+
+  // Meetwaarde
+  if (pt.meetwaarde) {
+    html+='<div class="fg"><label class="lbl">Meetwaarde</label><div class="mv-row"><input class="inp" type="number" step="any" id="mv-inp" value="'+esc(ans.meetwaarde||'')+'" onchange="saveMV(this.value)" placeholder="Waarde">';
+    if (pt.eenheid) html+='<div class="mv-unit">'+esc(pt.eenheid)+'</div>';
+    html+='</div></div>';
+  }
+
+  // Opmerking
+  if (pt.opmerking_toegestaan) {
+    html+='<div class="fg"><label class="lbl">Opmerking</label><textarea class="ta" id="opm-inp" rows="2" onchange="saveOpm(this.value)" placeholder="Toelichting...">'+esc(ans.opmerking||'')+'</textarea></div>';
+  }
+
+  // Foto
+  if (pt.foto_verplicht) html+='<div class="photo-req">📷 Foto verplicht</div>';
+  var fotos=ans.fotos||[];
+  if (fotos.length) {
+    html+='<div class="photo-grid">';
+    for (var i=0;i<fotos.length;i++) {
+      html+='<div class="photo-thumb"><img src="'+fotos[i]+'" alt=""><button class="photo-del" onclick="delPhoto('+idx+','+i+')" type="button">✕</button></div>';
+    }
+    html+='</div>';
+  }
+  html+='<button class="btn-photo" onclick="openPhoto('+idx+')" type="button">📷 Foto maken / uploaden</button>';
+
+  G('step-content').innerHTML=html;
+
+  // Herstel textarea waarden (innerHTML encoding)
+  var oi=G('opm-inp');
+  if (oi) oi.value=ans.opmerking||'';
+  var ai=G('ans-inp');
+  if (ai&&type==='TEKST') ai.value=cur||'';
+}
+
+function setAns(val) {
+  var idx=ST.currentStep;
+  if (!ST.answers[idx]) ST.answers[idx]={};
+  ST.answers[idx].value=val;
+  saveState();
+  renderStep();
+}
+
+function saveOpm(val) {
+  var idx=ST.currentStep;
+  if (!ST.answers[idx]) ST.answers[idx]={};
+  ST.answers[idx].opmerking=val;
+  saveState();
+}
+
+function saveMV(val) {
+  var idx=ST.currentStep;
+  if (!ST.answers[idx]) ST.answers[idx]={};
+  ST.answers[idx].meetwaarde=val;
+  saveState();
+}
+
+function prevStep() {
+  if (ST.currentStep>0){ST.currentStep--;saveState();renderStep();window.scrollTo(0,0);}
+}
+
+function nextStep() {
+  var idx=ST.currentStep, pt=ST.points[idx], ans=ST.answers[idx]||{};
+  if (pt.verplicht&&ans.value===undefined&&ans.value===null&&ans.value==='') { showToast('Dit veld is verplicht'); return; }
+  if (pt.verplicht&&!ans.value&&ans.value!==0) { showToast('Dit veld is verplicht'); return; }
+  if (pt.foto_verplicht&&(!ans.fotos||!ans.fotos.length)) { showToast('Foto is verplicht'); return; }
+  if (idx<ST.points.length-1) { ST.currentStep++;saveState();renderStep();window.scrollTo(0,0); }
+  else { saveState();showScr('scr-maint'); }
+}
+
+function confirmAbort() {
+  if (confirm('Inspectie onderbreken? Voortgang wordt bewaard.')) { saveState();checkResume();showScr('scr-home'); }
+}
+
+// ── FOTO ──────────────────────────────────────────────────
+function openPhoto(idx) {
+  currentPhotoIdx=idx;
+  G('photo-input').value='';
+  G('photo-input').click();
+}
+
+function handlePhotos(files) {
+  if (!files.length||currentPhotoIdx===null) return;
+  showLoad('Foto verwerken...');
+  var idx=currentPhotoIdx, done=0, total=files.length;
+  if (!ST.answers[idx]) ST.answers[idx]={};
+  if (!ST.answers[idx].fotos) ST.answers[idx].fotos=[];
+  for (var i=0;i<total;i++) {
+    (function(file){
+      var img=new Image();
+      var url=URL.createObjectURL(file);
+      img.onload=function(){
+        URL.revokeObjectURL(url);
+        var w=img.width,h=img.height,max=1200;
+        if(w>max||h>max){if(w>h){h=Math.round(h*max/w);w=max;}else{w=Math.round(w*max/h);h=max;}}
+        var cv=document.createElement('canvas');cv.width=w;cv.height=h;
+        cv.getContext('2d').drawImage(img,0,0,w,h);
+        ST.answers[idx].fotos.push(cv.toDataURL('image/jpeg',0.82));
+        done++;
+        if(done===total){saveState();hideLoad();renderStep();showToast('Foto toegevoegd ✓');}
+      };
+      img.onerror=function(){done++;if(done===total){hideLoad();}};
+      img.src=url;
+    })(files[i]);
+  }
+}
+
+function delPhoto(stepIdx,photoIdx) {
+  if (!confirm('Foto verwijderen?')) return;
+  ST.answers[stepIdx].fotos.splice(photoIdx,1);
+  saveState(); renderStep();
+}
+
+// ── ONDERHOUD ─────────────────────────────────────────────
+function toggleMaint(btn) {
+  btn.classList.toggle('on');
+  var key=btn.getAttribute('data-key');
+  ST.maintenance[key]=btn.classList.contains('on');
+  if (key==='overig') setHide('overig-field',!ST.maintenance.overig);
+  saveState();
+}
+
+function goToEval() {
+  ST.maintOverig=G('overig-txt').value;
+  saveState();
+  showScr('scr-eval');
+}
+
+// ── EVALUATIE ─────────────────────────────────────────────
+function selectEval(btn) {
+  var eos=document.querySelectorAll('.eo');
+  for (var i=0;i<eos.length;i++) eos[i].className='eo';
+  btn.classList.add(btn.getAttribute('data-cls'));
+  ST.evaluation=btn.getAttribute('data-eval');
+  saveState();
+}
+
+function goToSig() {
+  ST.evalAdvies=G('eval-advies').value;
+  ST.evalOnderdelen=G('eval-onderdelen').value;
+  ST.evalVervolgactie=G('eval-vervolgactie').value;
+  ST.evalDatum=G('eval-datum').value;
+  saveState();
+  showScr('scr-sig');
+  // Resize canvassen na tonen (wacht tot layout klaar is)
+  setTimeout(function(){
+    resizeSig('sig-monteur');
+    resizeSig('sig-klant');
+  },200);
+}
+
+// ── HANDTEKENINGEN ────────────────────────────────────────
+function setupSig(id,key) {
+  var canvas=G(id);
+  var hintId=id==='sig-monteur'?'sig-m-hint':'sig-k-hint';
+  function pos(e) {
+    var r=canvas.getBoundingClientRect();
+    var sx=canvas.width/r.width, sy=canvas.height/r.height;
+    var src=e.touches?e.touches[0]:e;
+    return {x:(src.clientX-r.left)*sx,y:(src.clientY-r.top)*sy};
+  }
+  function start(e) {
+    e.preventDefault();
+    sigDrawing[key]=true;
+    var p=pos(e); sigLast[key+'x']=p.x; sigLast[key+'y']=p.y;
+    G(hintId).style.display='none';
+  }
+  function move(e) {
+    if (!sigDrawing[key]) return;
+    e.preventDefault();
+    var ctx=canvas.getContext('2d'), p=pos(e);
+    ctx.beginPath(); ctx.moveTo(sigLast[key+'x'],sigLast[key+'y']);
+    ctx.lineTo(p.x,p.y); ctx.strokeStyle='#0A0A0A';
+    ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke();
+    sigLast[key+'x']=p.x; sigLast[key+'y']=p.y;
+  }
+  function stop(){sigDrawing[key]=false;}
+  canvas.addEventListener('mousedown',start);
+  canvas.addEventListener('mousemove',move);
+  canvas.addEventListener('mouseup',stop);
+  canvas.addEventListener('mouseleave',stop);
+  canvas.addEventListener('touchstart',start,{passive:false});
+  canvas.addEventListener('touchmove',move,{passive:false});
+  canvas.addEventListener('touchend',stop);
+}
+
+function resizeSig(id) {
+  var canvas=G(id);
+  var r=canvas.getBoundingClientRect();
+  if (r.width>0&&canvas.width!==Math.round(r.width)) canvas.width=Math.round(r.width);
+}
+
+function clearSig(id,hintId) {
+  var c=G(id); c.getContext('2d').clearRect(0,0,c.width,c.height);
+  G(hintId).style.display='';
+}
+
+function sigEmpty(id) {
+  var c=G(id),d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;
+  for (var i=3;i<d.length;i+=4) if(d[i]>0) return false;
+  return true;
+}
+
+// ── AFRONDEN ─────────────────────────────────────────────
+function finalize() {
+  ST.sigMonteur=sigEmpty('sig-monteur')?null:G('sig-monteur').toDataURL();
+  ST.sigKlant=sigEmpty('sig-klant')?null:G('sig-klant').toDataURL();
+  ST.completedAt=new Date().toISOString();
+  saveState();
+  archiveSave();
+  showScr('scr-summary');
+  renderSummary();
+}
+
+// ── SAMENVATTING ─────────────────────────────────────────
+function renderSummary() {
+  var pts=ST.points, ans=ST.answers;
+  var total=pts.length, ok=0, nok=0, actions=[];
+  for (var i=0;i<pts.length;i++) {
+    var v=(ans[i]||{}).value;
+    if (v==='OK'||v==='JA') ok++;
+    else if (v==='NOK'||v==='NEE') { nok++; actions.push({pt:pts[i],idx:i,a:ans[i]||{}}); }
+  }
+  G('sum-date').textContent=fmtDate(ST.client.datum||'');
+  G('sum-stats').innerHTML=
+    '<div class="stat-box"><div class="stat-num">'+total+'</div><div class="stat-lbl">Totaal</div></div>'+
+    '<div class="stat-box sg"><div class="stat-num">'+ok+'</div><div class="stat-lbl">Goed</div></div>'+
+    '<div class="stat-box sr"><div class="stat-num">'+nok+'</div><div class="stat-lbl">Afwijking</div></div>'+
+    '<div class="stat-box so"><div class="stat-num">'+(total-ok-nok)+'</div><div class="stat-lbl">Nvt/leeg</div></div>';
+  var evMap={goedgekeurd:{l:'✅ Goedgekeurd',c:'bg'},voorbehoud:{l:'⚠️ Onder voorbehoud',c:'bo'},
+    reparatie:{l:'🔴 Reparatie',c:'br'},buiten_bedrijf:{l:'⛔ Buiten bedrijf',c:'bk'}};
+  var ev=evMap[ST.evaluation];
+  G('sum-eval').innerHTML=ev?'<span class="badge '+ev.c+'" style="font-size:.85rem;padding:7px 14px">'+ev.l+'</span>':'';
+  setHide('sum-actions',!actions.length);
+  if (actions.length) {
+    var ah='';
+    for (var i=0;i<actions.length;i++) {
+      var it=actions[i];
+      ah+='<div class="act-item"><div class="act-num">'+(i+1)+'</div><div><div class="act-h">'+esc(it.pt.categorie)+' — '+esc(it.pt.controlepunt)+'</div>';
+      if (it.a.opmerking) ah+='<div class="act-p">💬 '+esc(it.a.opmerking)+'</div>';
+      ah+='</div></div>';
+    }
+    G('sum-action-list').innerHTML=ah;
+  }
+}
+
+// ── RAPPORT ──────────────────────────────────────────────
+function showReport() { renderReport(); showScr('scr-report'); }
+
+function rRow(l,v) {
+  if (!v) return '';
+  return '<div class="rpt-row"><span class="rpt-lbl">'+esc(l)+'</span><span class="rpt-val">'+esc(String(v))+'</span></div>';
+}
+
+function renderReport() {
+  var s=ST, pts=s.points, ans=s.answers;
+  var tnm={trainingsmolen:'Trainingsmolen',beregening:'Beregeningssysteem',aquatrainer:'Aquatrainer'};
+  var evL={goedgekeurd:'Goedgekeurd',voorbehoud:'Goedgekeurd onder voorbehoud',
+    reparatie:'Reparatie noodzakelijk',buiten_bedrijf:'Buiten bedrijf stellen'};
+  var mnm={gereinigd:'Gereinigd',gesmeerd:'Gesmeerd',afgesteld:'Afgesteld',
+    onderdelen:'Onderdelen vervangen',software:'Software gecontroleerd',overig:'Overig'};
+  var mntDone=[];
+  for (var k in s.maintenance) if(s.maintenance[k]) mntDone.push(mnm[k]||k);
+
+  var html='<div style="background:#0A0A0A;color:#fff;padding:22px 16px;margin:-18px -16px 16px;display:-webkit-flex;display:flex;align-items:center;gap:12px">';
+  html+='<div style="width:40px;height:40px;background:var(--red);border-radius:5px;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;font-weight:700;font-size:1.1rem;color:#fff;-webkit-flex-shrink:0;flex-shrink:0">Q</div>';
+  html+='<div><div style="font-weight:700;font-size:1rem;font-family:Georgia,serif">SERVICERAPPORT</div><div style="font-size:.7rem;opacity:.6;text-transform:uppercase;letter-spacing:.05em">Q-Line Equestrian B.V.</div></div>';
+  html+='<div style="margin-left:auto;text-align:right"><div style="font-size:.75rem;opacity:.6">'+esc(s.id||'')+'</div><div style="font-size:.82rem;font-weight:600">'+fmtDate(s.client.datum||'')+'</div></div></div>';
+
+  html+='<div class="rpt-sec"><div class="rpt-sec-h">Klantgegevens</div>';
+  html+=rRow('Klant',s.client.naam)+rRow('Locatie',s.client.locatie);
+  if(s.client.contact)html+=rRow('Contactpersoon',s.client.contact);
+  if(s.client.tel)html+=rRow('Telefoon',s.client.tel);
+  if(s.client.email)html+=rRow('E-mail',s.client.email);
+  html+='</div>';
+
+  html+='<div class="rpt-sec"><div class="rpt-sec-h">Installatiegegevens</div>';
+  html+=rRow('Type',tnm[s.type]||s.type||'')+rRow('Serienummer',s.client.serie)+rRow('Monteur',s.client.monteur)+rRow('Datum',fmtDate(s.client.datum));
+  if(s.client.opmerkingen)html+=rRow('Opmerkingen vooraf',s.client.opmerkingen);
+  html+='</div>';
+
+  html+='<div class="rpt-sec"><div class="rpt-sec-h">Inspectiepunten</div>';
+  var catMap={}, catOrder=[];
+  for (var i=0;i<pts.length;i++) {
+    var c=pts[i].categorie||'Overig';
+    if (!catMap[c]) { catMap[c]=[]; catOrder.push(c); }
+    catMap[c].push({pt:pts[i],idx:i});
+  }
+  for (var ci=0;ci<catOrder.length;ci++) {
+    var cat=catOrder[ci];
+    html+='<div style="font-weight:700;font-size:.82rem;color:var(--g700);margin:10px 0 5px;text-transform:uppercase;letter-spacing:.04em">'+esc(cat)+'</div>';
+    var items=catMap[cat];
+    for (var ii=0;ii<items.length;ii++) {
+      var it=items[ii], a=ans[it.idx]||{}, v=a.value||'';
+      var cls=v==='OK'||v==='JA'?'ok':v==='NOK'||v==='NEE'?'nok':'neu';
+      var icon=cls==='ok'?'✓':cls==='nok'?'✗':'○';
+      html+='<div class="rpt-pt '+cls+'"><div class="rpt-pt-h"><span>'+icon+'</span><span>'+esc(it.pt.controlepunt)+'</span></div>';
+      html+='<div class="rpt-pt-d">';
+      if(v)html+='Antwoord: <strong>'+esc(v)+'</strong>';else html+='<em>Geen antwoord</em>';
+      if(a.meetwaarde)html+=' &nbsp;|&nbsp; '+esc(a.meetwaarde)+(it.pt.eenheid?' '+esc(it.pt.eenheid):'');
+      if(a.opmerking)html+='<br>💬 '+esc(a.opmerking);
+      html+='</div>';
+      if(a.fotos&&a.fotos.length){
+        html+='<div style="display:-webkit-flex;display:flex;gap:5px;margin-top:7px;flex-wrap:wrap">';
+        for(var fi=0;fi<a.fotos.length;fi++) html+='<img src="'+a.fotos[fi]+'" style="width:72px;height:72px;object-fit:cover;border-radius:4px;border:1px solid var(--g200)">';
+        html+='</div>';
+      }
+      html+='</div>';
+    }
+  }
+  html+='</div>';
+
+  if (mntDone.length) {
+    html+='<div class="rpt-sec"><div class="rpt-sec-h">Onderhoud</div><div style="display:-webkit-flex;display:flex;flex-wrap:wrap;gap:7px;margin-bottom:7px">';
+    for(var i=0;i<mntDone.length;i++) html+='<span class="badge" style="background:var(--blul);color:var(--blu)">'+esc(mntDone[i])+'</span>';
+    html+='</div>';
+    if(s.maintOverig)html+='<p style="font-size:.85rem;color:var(--g700)">'+esc(s.maintOverig)+'</p>';
+    html+='</div>';
+  }
+
+  html+='<div class="rpt-sec"><div class="rpt-sec-h">Eindbeoordeling</div>';
+  if(s.evaluation)html+=rRow('Beoordeling',evL[s.evaluation]||s.evaluation);
+  if(s.evalAdvies)html+=rRow('Advies',s.evalAdvies);
+  if(s.evalOnderdelen)html+=rRow('Onderdelen',s.evalOnderdelen);
+  if(s.evalVervolgactie)html+=rRow('Vervolgactie',s.evalVervolgactie);
+  if(s.evalDatum)html+=rRow('Vervolgdatum',fmtDate(s.evalDatum));
+  html+='</div>';
+
+  if(s.sigMonteur||s.sigKlant){
+    html+='<div class="rpt-sec"><div class="rpt-sec-h">Handtekeningen</div><div style="display:-webkit-flex;display:flex;gap:14px;flex-wrap:wrap">';
+    if(s.sigMonteur)html+='<div style="-webkit-flex:1;flex:1;min-width:140px"><div style="font-size:.72rem;color:var(--g600);margin-bottom:5px;font-weight:600">MONTEUR</div><img src="'+s.sigMonteur+'" style="width:100%;border:1.5px solid var(--g200);border-radius:5px;background:#fff;max-height:90px;object-fit:contain"></div>';
+    if(s.sigKlant)html+='<div style="-webkit-flex:1;flex:1;min-width:140px"><div style="font-size:.72rem;color:var(--g600);margin-bottom:5px;font-weight:600">KLANT</div><img src="'+s.sigKlant+'" style="width:100%;border:1.5px solid var(--g200);border-radius:5px;background:#fff;max-height:90px;object-fit:contain"></div>';
+    html+='</div></div>';
+  }
+
+  html+='<div style="margin-top:22px;padding-top:16px;border-top:1px solid var(--g200);font-size:.72rem;color:var(--g400);text-align:center;line-height:1.9">Q-Line Equestrian B.V. · Pioneers in Equestrian Innovation<br>www.q-line.com · support@q-line.com<br>'+esc(s.id||'')+' · '+new Date().toLocaleDateString('nl-NL')+'</div>';
+  html+='<div style="margin-top:20px;display:-webkit-flex;display:flex;flex-direction:column;gap:10px" class="no-print"><button class="btn btn-p btn-full" onclick="doPrint()" type="button">🖨️ Afdrukken / Opslaan als PDF</button><button class="btn btn-g btn-full" onclick="doEmail()" type="button">✉️ E-mail voorbereiden</button></div>';
+
+  G('report-content').innerHTML=html;
+}
+
+function doPrint() { renderReport(); showScr('scr-report'); setTimeout(function(){window.print();},300); }
+
+function doEmail() {
+  var s=ST, pts=s.points, ans=s.answers, nok=0;
+  for(var i=0;i<pts.length;i++){var v=(ans[i]||{}).value;if(v==='NOK'||v==='NEE')nok++;}
+  var evL={goedgekeurd:'Goedgekeurd',voorbehoud:'Goedgekeurd onder voorbehoud',
+    reparatie:'Reparatie noodzakelijk',buiten_bedrijf:'Buiten bedrijf stellen'};
+  var subj=encodeURIComponent('Inspectierapport - '+(s.client.naam||'Klant')+' - '+(s.client.datum||''));
+  var body=encodeURIComponent('Geachte Q-Line,\n\nHierbij het inspectierapport voor onderstaande installatie.\n\nKLANT: '+(s.client.naam||'')+'\nLOCATIE: '+(s.client.locatie||'')+'\nMONTEUR: '+(s.client.monteur||'')+'\nTYPE: '+(s.type||'')+'\nDATUM: '+(s.client.datum||'')+'\nEINDBEOORDELING: '+(evL[s.evaluation]||s.evaluation||'—')+'\nAANTAL AFWIJKINGEN: '+nok+'\n\n⚠️ Voeg het PDF-rapport als bijlage toe voordat u de e-mail verstuurt.\n\nMet vriendelijke groet,\n'+(s.client.monteur||''));
+  window.location.href='mailto:support@q-line.com?subject='+subj+'&body='+body;
+}
+
+// ── ARCHIEF ───────────────────────────────────────────────
+function archiveSave() {
+  var arc=[];
+  try{arc=JSON.parse(localStorage.getItem(AK)||'[]');}catch(e){}
+  var meta={id:ST.id,type:ST.type,client:ST.client,completedAt:ST.completedAt,evaluation:ST.evaluation,pointCount:ST.points.length};
+  try{localStorage.setItem('qline_i_'+ST.id,JSON.stringify(ST));}catch(e){}
+  var idx=-1;
+  for(var i=0;i<arc.length;i++) if(arc[i].id===ST.id){idx=i;break;}
+  if(idx>=0)arc[idx]=meta;else arc.unshift(meta);
+  if(arc.length>50)arc=arc.slice(0,50);
+  try{localStorage.setItem(AK,JSON.stringify(arc));}catch(e){}
+  try{localStorage.removeItem(SK);}catch(e){}
+}
+
+function showArchive() {
+  var arc=[];
+  try{arc=JSON.parse(localStorage.getItem(AK)||'[]');}catch(e){}
+  var tnm={trainingsmolen:'Trainingsmolen',beregening:'Beregening',aquatrainer:'Aquatrainer'};
+  var evM={goedgekeurd:{l:'Goedgekeurd',c:'bg'},voorbehoud:{l:'Voorbehoud',c:'bo'},
+    reparatie:{l:'Reparatie',c:'br'},buiten_bedrijf:{l:'Buiten bedrijf',c:'bk'}};
+  var html='';
+  if (!arc.length) {
+    html='<div class="alert alert-i"><span>ℹ️</span><div>Nog geen inspecties opgeslagen.</div></div>';
+  } else {
+    for(var i=0;i<arc.length;i++){
+      var a=arc[i],ev=evM[a.evaluation]||{l:a.evaluation||'—',c:'bk'};
+      var cl=a.client||{};
+      html+='<div class="arc-item">';
+      html+='<div class="arc-head"><div class="arc-h">'+esc(cl.naam||'Onbekend')+'</div><div class="arc-dt">'+fmtDate(cl.datum||'')+'</div></div>';
+      html+='<div style="margin-bottom:6px"><span class="badge '+ev.c+'">'+esc(ev.l)+'</span></div>';
+      html+='<div class="arc-meta">📍 '+esc(cl.locatie||'—')+'<br>🔧 '+esc(tnm[a.type]||a.type||'—')+' · 👤 '+esc(cl.monteur||'—')+'<br>📋 '+(a.pointCount||0)+' punten</div>';
+      html+='<div class="arc-btns"><button class="btn btn-o btn-sm" onclick="arcView(\''+esc(a.id)+'\')" type="button">📄 Bekijken</button><button class="btn btn-g btn-sm" onclick="arcDel(\''+esc(a.id)+'\')" type="button">🗑️ Verwijderen</button></div>';
+      html+='</div>';
+    }
+  }
+  G('archive-list').innerHTML=html;
+  showScr('scr-archive');
+}
+
+function arcView(id) {
+  try{
+    var saved=localStorage.getItem('qline_i_'+id);
+    if(!saved){showToast('Niet gevonden');return;}
+    ST=JSON.parse(saved);
+    renderReport();showScr('scr-report');
+  }catch(e){showToast('Fout bij laden');}
+}
+
+function arcDel(id) {
+  if(!confirm('Inspectie verwijderen?')) return;
+  try{localStorage.removeItem('qline_i_'+id);}catch(e){}
+  var arc=[];
+  try{arc=JSON.parse(localStorage.getItem(AK)||'[]');}catch(e){}
+  var newArc=[];
+  for(var i=0;i<arc.length;i++) if(arc[i].id!==id) newArc.push(arc[i]);
+  try{localStorage.setItem(AK,JSON.stringify(newArc));}catch(e){}
+  showToast('Verwijderd');
+  showArchive();
+}
+
+// ── START ─────────────────────────────────────────────────
+window.onload=function(){init();};
+</script>
+</body>
+</html>
