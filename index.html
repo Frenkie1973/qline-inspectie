@@ -1202,6 +1202,14 @@ function finalize() {
   archiveSave();
   showScr('scr-summary');
   renderSummary();
+  // Upload naar Firebase op de achtergrond
+  if (typeof window.saveToFirebase === 'function') {
+    showToast('Rapport uploaden naar server...');
+    window.saveToFirebase(ST).then(function(ok) {
+      if (ok) showToast('✅ Rapport verstuurd naar werkvoorbereider');
+      else showToast('⚠️ Upload mislukt - rapport lokaal opgeslagen');
+    });
+  }
 }
 
 // ── SAMENVATTING ─────────────────────────────────────────
@@ -1406,5 +1414,104 @@ function arcDel(id) {
 // ── START ─────────────────────────────────────────────────
 window.onload=function(){init();};
 </script>
+
+<script type="module">
+// ============================================================
+// FIREBASE INTEGRATIE - Firestore + Storage
+// ============================================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+var fbConfig = {
+  apiKey: "AIzaSyAk4Xus-k0ZTCIMluh9QMslsg-I21uMoDQ",
+  authDomain: "qline-ritten.firebaseapp.com",
+  projectId: "qline-ritten",
+  storageBucket: "qline-ritten.firebasestorage.app",
+  messagingSenderId: "999415794642",
+  appId: "1:999415794642:web:15512fc2e367df42ccd60b"
+};
+
+var fbApp = initializeApp(fbConfig);
+var db = getFirestore(fbApp);
+var storage = getStorage(fbApp);
+
+// Upload foto's naar Storage, geeft URLs terug
+async function uploadFotos(inspectiId, answers) {
+  var result = {};
+  for (var idx in answers) {
+    var ans = answers[idx];
+    if (!ans.fotos || !ans.fotos.length) continue;
+    result[idx] = [];
+    for (var fi = 0; fi < ans.fotos.length; fi++) {
+      try {
+        var path = 'inspecties/' + inspectiId + '/stap' + idx + '_foto' + fi + '.jpg';
+        var storageRef = ref(storage, path);
+        await uploadString(storageRef, ans.fotos[fi], 'data_url');
+        var url = await getDownloadURL(storageRef);
+        result[idx].push(url);
+      } catch(e) {
+        console.warn('Foto upload mislukt:', e);
+        result[idx].push(null);
+      }
+    }
+  }
+  return result;
+}
+
+// Hoofdfunctie: sla inspectie op in Firestore
+window.saveToFirebase = async function(state) {
+  try {
+    window._fbSaving = true;
+
+    // Upload foto's eerst
+    var fotoUrls = await uploadFotos(state.id, state.answers);
+
+    // Bouw Firestore document (zonder base64 fotos)
+    var answers_clean = {};
+    for (var idx in state.answers) {
+      var a = state.answers[idx];
+      answers_clean[idx] = {
+        value: a.value || null,
+        opmerking: a.opmerking || null,
+        meetwaarde: a.meetwaarde || null,
+        fotos: fotoUrls[idx] || []
+      };
+    }
+
+    var doc_data = {
+      id: state.id,
+      type: state.type,
+      client: state.client,
+      answers: answers_clean,
+      maintenance: state.maintenance,
+      maintOverig: state.maintOverig || '',
+      evaluation: state.evaluation,
+      evalAdvies: state.evalAdvies || '',
+      evalOnderdelen: state.evalOnderdelen || '',
+      evalVervolgactie: state.evalVervolgactie || '',
+      evalDatum: state.evalDatum || '',
+      sigMonteur: state.sigMonteur || null,
+      sigKlant: state.sigKlant || null,
+      points: state.points,
+      startedAt: state.startedAt,
+      completedAt: state.completedAt,
+      uploadedAt: new Date().toISOString(),
+      status: 'nieuw'
+    };
+
+    var docRef = await addDoc(collection(db, 'inspecties'), doc_data);
+    window._fbDocId = docRef.id;
+    window._fbSaving = false;
+    console.log('Inspectie opgeslagen in Firebase:', docRef.id);
+    return true;
+  } catch(e) {
+    window._fbSaving = false;
+    console.error('Firebase opslaan mislukt:', e);
+    return false;
+  }
+};
+</script>
+
 </body>
 </html>
