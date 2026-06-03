@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q-Line Werkvoorbereider Portaal</title>
+<style>
+:root{--red:#CC0000;--blk:#0A0A0A;--grn:#1A7A3A;--org:#D05A00;--g50:#F8F8F8;--g100:#F0F0F0;--g200:#E0E0E0;--g400:#999;--g600:#555;--g700:#333;--grnl:#E6F5EC;--orgl:#FFF3E0;--blul:#E3F2FD;--r:8px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:15px;background:#f0f0f0;color:#0A0A0A}
+/* HEADER */
+.hdr{background:#0A0A0A;color:#fff;padding:0 24px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.hdr-logo{width:32px;height:32px;background:var(--red);border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.95rem;flex-shrink:0}
+.hdr-title{font-size:1rem;font-weight:700}
+.hdr-sub{font-size:.7rem;opacity:.6;margin-left:4px;text-transform:uppercase;letter-spacing:.05em}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.live-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+/* LAYOUT */
+.wrap{max-width:1200px;margin:0 auto;padding:20px 16px}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat{background:#fff;border-radius:var(--r);padding:16px;border:1.5px solid var(--g200);text-align:center}
+.stat-n{font-size:1.8rem;font-weight:800;line-height:1;margin-bottom:3px;font-family:Georgia,serif}
+.stat-l{font-size:.72rem;color:var(--g600);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.sg .stat-n{color:var(--grn)}.sr .stat-n{color:var(--red)}.so .stat-n{color:var(--org)}
+/* FILTERS */
+.filters{background:#fff;border-radius:var(--r);padding:14px 16px;margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;border:1.5px solid var(--g200)}
+.filters input,.filters select{padding:8px 12px;border:1.5px solid var(--g200);border-radius:6px;font-family:inherit;font-size:.88rem;color:var(--blk);background:#fff}
+.filters input:focus,.filters select:focus{outline:none;border-color:var(--red)}
+.filters input{flex:1;min-width:180px}
+/* TABLE */
+.tbl-wrap{background:#fff;border-radius:var(--r);border:1.5px solid var(--g200);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead{background:var(--blk);color:#fff}
+th{padding:11px 14px;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700;white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid var(--g100);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--g50);cursor:pointer}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap}
+.bg{background:var(--grnl);color:var(--grn)}.bo{background:var(--orgl);color:var(--org)}.br{background:#FDECEA;color:var(--red)}.bk{background:var(--g100);color:var(--g600)}.bn{background:var(--blul);color:#1565C0}
+/* DETAIL MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;overflow-y:auto}
+.overlay.on{display:block}
+.modal{background:#fff;border-radius:12px;max-width:860px;margin:40px auto;padding:0;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-hdr{background:var(--blk);color:#fff;padding:18px 22px;display:flex;align-items:center;gap:12px}
+.modal-hdr h2{font-size:1.05rem;font-weight:700;flex:1}
+.modal-close{background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;padding:0 4px;line-height:1}
+.modal-body{padding:22px;max-height:80vh;overflow-y:auto}
+.sec-hdr{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--red);margin:18px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--g200)}
+.sec-hdr:first-child{margin-top:0}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.info-row{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--g100);font-size:.86rem}
+.info-row:last-child{border-bottom:none}
+.info-lbl{color:var(--g600);min-width:140px;flex-shrink:0}
+.info-val{font-weight:600}
+.pt-item{padding:10px;border-radius:6px;margin-bottom:6px;font-size:.84rem}
+.pt-ok{background:var(--grnl);border-left:3px solid var(--grn)}
+.pt-nok{background:#FDECEA;border-left:3px solid var(--red)}
+.pt-neu{background:var(--g50);border-left:3px solid var(--g400)}
+.pt-hd{font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.pt-det{color:var(--g700);font-size:.82rem}
+.pt-fotos{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.pt-fotos img{width:80px;height:80px;object-fit:cover;border-radius:4px;border:1px solid var(--g200);cursor:pointer}
+.pt-fotos img:hover{opacity:.85}
+.sig-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:4px}
+.sig-box{flex:1;min-width:150px}
+.sig-lbl{font-size:.72rem;color:var(--g600);margin-bottom:5px;font-weight:600;text-transform:uppercase}
+.sig-img{width:100%;border:1.5px solid var(--g200);border-radius:6px;background:#fff;max-height:100px;object-fit:contain}
+/* STATUS BUTTONS */
+.status-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid var(--g200)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border:none;border-radius:6px;font-family:inherit;font-size:.88rem;font-weight:600;cursor:pointer;transition:.15s}
+.btn:active{opacity:.8}
+.btn-p{background:var(--red);color:#fff}.btn-g{background:var(--g100);color:var(--blk);border:1.5px solid var(--g200)}.btn-grn{background:var(--grn);color:#fff}
+/* LOADING */
+.loading{text-align:center;padding:48px;color:var(--g400);font-size:.95rem}
+.spinner{width:36px;height:36px;border:3px solid var(--g200);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* EMPTY */
+.empty{text-align:center;padding:48px;color:var(--g400)}
+/* LIGHTBOX */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:300;align-items:center;justify-content:center}
+.lightbox.on{display:flex}
+.lightbox img{max-width:90vw;max-height:90vh;border-radius:8px}
+.lightbox-close{position:absolute;top:16px;right:16px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer}
+/* RESPONSIVE */
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}.info-grid{grid-template-columns:1fr}th:nth-child(3),td:nth-child(3){display:none}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">Q</div>
+  <div>
+    <span class="hdr-title">Q-Line Werkvoorbereider</span>
+    <span class="hdr-sub">Inspectierapporten</span>
+  </div>
+  <div class="hdr-right">
+    <div class="live-dot" title="Live updates aan"></div>
+    <span style="font-size:.78rem;opacity:.6">Live</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- STATS -->
+  <div class="stats" id="stats">
+    <div class="stat"><div class="stat-n" id="s-totaal">—</div><div class="stat-l">Totaal</div></div>
+    <div class="stat bn"><div class="stat-n" id="s-nieuw">—</div><div class="stat-l">Nieuw</div></div>
+    <div class="stat so"><div class="stat-n" id="s-actie">—</div><div class="stat-l">Actie vereist</div></div>
+    <div class="stat sg"><div class="stat-n" id="s-afgehandeld">—</div><div class="stat-l">Afgehandeld</div></div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <input type="text" id="filter-zoek" placeholder="🔍 Zoek op klant, monteur, locatie...">
+    <select id="filter-type">
+      <option value="">Alle types</option>
+      <option value="trainingsmolen">Trainingsmolen</option>
+      <option value="beregening">Beregening</option>
+      <option value="aquatrainer">Aquatrainer</option>
+    </select>
+    <select id="filter-status">
+      <option value="">Alle statussen</option>
+      <option value="nieuw">Nieuw</option>
+      <option value="in_behandeling">In behandeling</option>
+      <option value="afgehandeld">Afgehandeld</option>
+    </select>
+    <select id="filter-eval">
+      <option value="">Alle beoordelingen</option>
+      <option value="goedgekeurd">Goedgekeurd</option>
+      <option value="voorbehoud">Onder voorbehoud</option>
+      <option value="reparatie">Reparatie</option>
+      <option value="buiten_bedrijf">Buiten bedrijf</option>
+    </select>
+  </div>
+
+  <!-- TABEL -->
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Datum</th>
+          <th>Klant / Locatie</th>
+          <th>Type</th>
+          <th>Monteur</th>
+          <th>Beoordeling</th>
+          <th>Afwijkingen</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-body">
+        <tr><td colspan="7"><div class="loading"><div class="spinner"></div>Rapporten laden...</div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="overlay" id="overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-hdr">
+      <div style="width:32px;height:32px;background:var(--red);border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;flex-shrink:0">Q</div>
+      <h2 id="modal-title">Inspectierapport</h2>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-g" onclick="printModal()" style="padding:6px 12px;font-size:.8rem">🖨️ Print</button>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+var fbConfig = {
+  apiKey: "AIzaSyAk4Xus-k0ZTCIMluh9QMslsg-I21uMoDQ",
+  authDomain: "qline-ritten.firebaseapp.com",
+  projectId: "qline-ritten",
+  storageBucket: "qline-ritten.firebasestorage.app",
+  messagingSenderId: "999415794642",
+  appId: "1:999415794642:web:15512fc2e367df42ccd60b"
+};
+
+var app = initializeApp(fbConfig);
+var db = getFirestore(app);
+
+var allDocs = [];
+var currentDocId = null;
+
+var typeNames = {trainingsmolen:'Trainingsmolen',beregening:'Beregening',aquatrainer:'Aquatrainer'};
+var evalMap = {
+  goedgekeurd:{l:'Goedgekeurd',c:'bg'},
+  voorbehoud:{l:'Onder voorbehoud',c:'bo'},
+  reparatie:{l:'Reparatie',c:'br'},
+  buiten_bedrijf:{l:'Buiten bedrijf',c:'bk'}
+};
+var statusMap = {
+  nieuw:{l:'Nieuw',c:'bn'},
+  in_behandeling:{l:'In behandeling',c:'bo'},
+  afgehandeld:{l:'Afgehandeld',c:'bg'}
+};
+
+function fmtDate(d) {
+  if (!d) return '—';
+  try { var dt = new Date(d); return dt.toLocaleDateString('nl-NL',{day:'2-digit',month:'2-digit',year:'numeric'}); } catch(e) { return d; }
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function countNok(doc) {
+  var n = 0;
+  if (!doc.answers) return 0;
+  for (var k in doc.answers) { var v = doc.answers[k] && doc.answers[k].value; if (v === 'NOK' || v === 'NEE') n++; }
+  return n;
+}
+
+function renderTable(docs) {
+  var zoek = document.getElementById('filter-zoek').value.toLowerCase();
+  var fType = document.getElementById('filter-type').value;
+  var fStatus = document.getElementById('filter-status').value;
+  var fEval = document.getElementById('filter-eval').value;
+
+  var filtered = docs.filter(function(d) {
+    var c = d.client || {};
+    var tekst = ((c.naam||'')+(c.locatie||'')+(c.monteur||'')).toLowerCase();
+    if (zoek && tekst.indexOf(zoek) < 0) return false;
+    if (fType && d.type !== fType) return false;
+    if (fStatus && d.status !== fStatus) return false;
+    if (fEval && d.evaluation !== fEval) return false;
+    return true;
+  });
+
+  // Stats
+  document.getElementById('s-totaal').textContent = docs.length;
+  document.getElementById('s-nieuw').textContent = docs.filter(function(d){return d.status==='nieuw'||!d.status;}).length;
+  document.getElementById('s-actie').textContent = docs.filter(function(d){return d.evaluation==='reparatie'||d.evaluation==='buiten_bedrijf';}).length;
+  document.getElementById('s-afgehandeld').textContent = docs.filter(function(d){return d.status==='afgehandeld';}).length;
+
+  var tbody = document.getElementById('tbl-body');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty">Geen rapporten gevonden</div></td></tr>';
+    return;
+  }
+
+  var html = '';
+  filtered.forEach(function(d) {
+    var c = d.client || {};
+    var ev = evalMap[d.evaluation] || {l:'—',c:'bk'};
+    var st = statusMap[d.status||'nieuw'] || {l:'Nieuw',c:'bn'};
+    var nok = countNok(d);
+    html += '<tr onclick="window.openDetail(\'' + d._docId + '\')">';
+    html += '<td style="white-space:nowrap">' + fmtDate(c.datum) + '</td>';
+    html += '<td><div style="font-weight:600">' + esc(c.naam||'—') + '</div><div style="font-size:.78rem;color:var(--g600)">' + esc(c.locatie||'') + '</div></td>';
+    html += '<td>' + esc(typeNames[d.type]||d.type||'—') + '</td>';
+    html += '<td>' + esc(c.monteur||'—') + '</td>';
+    html += '<td><span class="badge ' + ev.c + '">' + ev.l + '</span></td>';
+    html += '<td>' + (nok > 0 ? '<span style="color:var(--red);font-weight:700">⚠️ ' + nok + '</span>' : '<span style="color:var(--grn)">✓ 0</span>') + '</td>';
+    html += '<td><span class="badge ' + st.c + '">' + st.l + '</span></td>';
+    html += '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+window.openDetail = function(docId) {
+  var d = allDocs.find(function(x){return x._docId===docId;});
+  if (!d) return;
+  currentDocId = docId;
+  var c = d.client || {};
+  var ev = evalMap[d.evaluation] || {l:'—',c:'bk'};
+  var typeNm = typeNames[d.type] || d.type || '—';
+  var mnts = {gereinigd:'Gereinigd',gesmeerd:'Gesmeerd',afgesteld:'Afgesteld',onderdelen:'Onderdelen vervangen',software:'Software gecontroleerd',overig:'Overig'};
+
+  document.getElementById('modal-title').textContent = (c.naam||'Klant') + ' — ' + fmtDate(c.datum);
+
+  var html = '';
+
+  // Klant & installatie
+  html += '<div class="sec-hdr">Klantgegevens</div>';
+  html += '<div class="info-row"><span class="info-lbl">Klant</span><span class="info-val">' + esc(c.naam||'—') + '</span></div>';
+  html += '<div class="info-row"><span class="info-lbl">Locatie</span><span class="info-val">' + esc(c.locatie||'—') + '</span></div>';
+  if(c.contact) html += '<div class="info-row"><span class="info-lbl">Contactpersoon</span><span class="info-val">' + esc(c.contact) + '</span></div>';
+  if(c.tel) html += '<div class="info-row"><span class="info-lbl">Telefoon</span><span class="info-val">' + esc(c.tel) + '</span></div>';
+  if(c.email) html += '<div class="info-row"><span class="info-lbl">E-mail</span><span class="info-val">' + esc(c.email) + '</span></div>';
+  html += '<div class="info-row"><span class="info-lbl">Type installatie</span><span class="info-val">' + esc(typeNm) + '</span></div>';
+  if(c.serie) html += '<div class="info-row"><span class="info-lbl">Serienummer</span><span class="info-val">' + esc(c.serie) + '</span></div>';
+  html += '<div class="info-row"><span class="info-lbl">Monteur</span><span class="info-val">' + esc(c.monteur||'—') + '</span></div>';
+  html += '<div class="info-row"><span class="info-lbl">Datum</span><span class="info-val">' + fmtDate(c.datum) + '</span></div>';
+
+  // Inspectiepunten
+  if (d.points && d.points.length) {
+    html += '<div class="sec-hdr">Inspectiepunten</div>';
+    var catMap = {}, catOrder = [];
+    d.points.forEach(function(pt, idx) {
+      var cat = pt.categorie || 'Overig';
+      if (!catMap[cat]) { catMap[cat] = []; catOrder.push(cat); }
+      catMap[cat].push({pt:pt,idx:idx});
+    });
+    catOrder.forEach(function(cat) {
+      html += '<div style="font-weight:700;font-size:.8rem;color:var(--g700);margin:10px 0 5px;text-transform:uppercase">' + esc(cat) + '</div>';
+      catMap[cat].forEach(function(item) {
+        var a = (d.answers && d.answers[item.idx]) || {};
+        var v = a.value || '';
+        var cls = (v==='OK'||v==='JA') ? 'pt-ok' : (v==='NOK'||v==='NEE') ? 'pt-nok' : 'pt-neu';
+        var icon = cls==='pt-ok' ? '✓' : cls==='pt-nok' ? '✗' : '○';
+        html += '<div class="pt-item ' + cls + '">';
+        html += '<div class="pt-hd"><span>' + icon + '</span><span>' + esc(item.pt.controlepunt) + '</span></div>';
+        html += '<div class="pt-det">';
+        if(v) html += 'Antwoord: <strong>' + esc(v) + '</strong>';
+        if(a.meetwaarde) html += ' &nbsp;|&nbsp; ' + esc(a.meetwaarde) + (item.pt.eenheid ? ' ' + esc(item.pt.eenheid) : '');
+        if(a.opmerking) html += '<br>💬 ' + esc(a.opmerking);
+        html += '</div>';
+        // Foto's (URLs van Storage)
+        if (a.fotos && a.fotos.length) {
+          html += '<div class="pt-fotos">';
+          a.fotos.forEach(function(url) {
+            if (url) html += '<img src="' + esc(url) + '" onclick="window.openLightbox(\'' + esc(url) + '\')" alt="foto">';
+          });
+          html += '</div>';
+        }
+        html += '</div>';
+      });
+    });
+  }
+
+  // Onderhoud
+  var mntDone = [];
+  if (d.maintenance) { for (var k in d.maintenance) { if(d.maintenance[k]) mntDone.push(mnts[k]||k); } }
+  if (mntDone.length) {
+    html += '<div class="sec-hdr">Onderhoud uitgevoerd</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px">';
+    mntDone.forEach(function(m){ html += '<span class="badge" style="background:var(--blul);color:#1565C0">' + esc(m) + '</span>'; });
+    html += '</div>';
+    if(d.maintOverig) html += '<p style="font-size:.85rem;color:var(--g700)">' + esc(d.maintOverig) + '</p>';
+  }
+
+  // Eindbeoordeling
+  html += '<div class="sec-hdr">Eindbeoordeling</div>';
+  html += '<div class="info-row"><span class="info-lbl">Beoordeling</span><span class="info-val"><span class="badge ' + ev.c + '">' + ev.l + '</span></span></div>';
+  if(d.evalAdvies) html += '<div class="info-row"><span class="info-lbl">Advies</span><span class="info-val">' + esc(d.evalAdvies) + '</span></div>';
+  if(d.evalOnderdelen) html += '<div class="info-row"><span class="info-lbl">Onderdelen nodig</span><span class="info-val">' + esc(d.evalOnderdelen) + '</span></div>';
+  if(d.evalVervolgactie) html += '<div class="info-row"><span class="info-lbl">Vervolgactie</span><span class="info-val">' + esc(d.evalVervolgactie) + '</span></div>';
+  if(d.evalDatum) html += '<div class="info-row"><span class="info-lbl">Vervolgdatum</span><span class="info-val">' + fmtDate(d.evalDatum) + '</span></div>';
+
+  // Handtekeningen
+  if (d.sigMonteur || d.sigKlant) {
+    html += '<div class="sec-hdr">Handtekeningen</div><div class="sig-row">';
+    if(d.sigMonteur) html += '<div class="sig-box"><div class="sig-lbl">Monteur</div><img class="sig-img" src="' + d.sigMonteur + '"></div>';
+    if(d.sigKlant) html += '<div class="sig-box"><div class="sig-lbl">Klant</div><img class="sig-img" src="' + d.sigKlant + '"></div>';
+    html += '</div>';
+  }
+
+  // Status knoppen
+  html += '<div class="status-btns">';
+  html += '<button class="btn btn-g" onclick="window.setStatus(\'' + docId + '\',\'in_behandeling\')">📋 In behandeling</button>';
+  html += '<button class="btn btn-grn" onclick="window.setStatus(\'' + docId + '\',\'afgehandeld\')">✅ Afgehandeld</button>';
+  html += '</div>';
+
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('overlay').classList.add('on');
+};
+
+window.closeModal = function(e) {
+  if (!e || e.target === document.getElementById('overlay')) {
+    document.getElementById('overlay').classList.remove('on');
+  }
+};
+
+window.printModal = function() {
+  window.print();
+};
+
+window.setStatus = async function(docId, status) {
+  try {
+    await updateDoc(doc(db, 'inspecties', docId), {status: status});
+    document.getElementById('overlay').classList.remove('on');
+  } catch(e) { alert('Fout bij opslaan: ' + e.message); }
+};
+
+window.openLightbox = function(url) {
+  document.getElementById('lightbox-img').src = url;
+  document.getElementById('lightbox').classList.add('on');
+};
+window.closeLightbox = function() {
+  document.getElementById('lightbox').classList.remove('on');
+};
+
+// Filters
+['filter-zoek','filter-type','filter-status','filter-eval'].forEach(function(id) {
+  document.getElementById(id).addEventListener('input', function() { renderTable(allDocs); });
+});
+
+// Live listener op Firestore
+var q = query(collection(db, 'inspecties'), orderBy('uploadedAt', 'desc'));
+onSnapshot(q, function(snapshot) {
+  allDocs = [];
+  snapshot.forEach(function(d) {
+    var data = d.data();
+    data._docId = d.id;
+    allDocs.push(data);
+  });
+  renderTable(allDocs);
+}, function(err) {
+  document.getElementById('tbl-body').innerHTML =
+    '<tr><td colspan="7"><div class="empty">⚠️ Fout bij laden: ' + err.message + '</div></td></tr>';
+});
+</script>
+</body>
+</html>
