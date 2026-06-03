@@ -104,12 +104,18 @@ tr:hover td{background:var(--g50);cursor:pointer}
   <div class="login-card">
     <div class="login-logo">Q</div>
     <h2>Q-Line Werkvoorbereider</h2>
-    <p>Log in met je Q-Line Google account om rapporten te bekijken</p>
+    <p>Log in om inspectierapportente bekijken</p>
+    <input type="email" id="login-email" placeholder="E-mailadres" style="width:100%;padding:12px 14px;border:2px solid #E0E0E0;border-radius:6px;font-size:1rem;font-family:inherit;margin-bottom:8px;box-sizing:border-box;display:block">
+    <input type="password" id="login-pass" placeholder="Wachtwoord" style="width:100%;padding:12px 14px;border:2px solid #E0E0E0;border-radius:6px;font-size:1rem;font-family:inherit;margin-bottom:14px;box-sizing:border-box;display:block">
+    <button class="btn-google" id="btn-email-login" type="button" style="background:#CC0000;border-color:#CC0000;color:#fff;margin-bottom:12px;width:100%">
+      Inloggen
+    </button>
+    <div style="text-align:center;color:#999;font-size:.8rem;margin-bottom:12px">— of inloggen met —</div>
     <button class="btn-google" id="btn-google-login" type="button">
       <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-      Inloggen met Google
+      Google account
     </button>
-    <div class="err" id="login-err">Inloggen mislukt. Probeer opnieuw.</div>
+    <div class="err" id="login-err">E-mail of wachtwoord onjuist.</div>
   </div>
 </div>
 
@@ -204,7 +210,7 @@ tr:hover td{background:var(--g50);cursor:pointer}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 var fbConfig = {
   apiKey: "AIzaSyAk4Xus-k0ZTCIMluh9QMslsg-I21uMoDQ",
@@ -221,6 +227,39 @@ var auth = getAuth(app);
 var provider = new GoogleAuthProvider();
 
 // Google login knop
+document.getElementById('btn-email-login').addEventListener('click', function() {
+  var email = document.getElementById('login-email').value.trim();
+  var pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { document.getElementById('login-err').style.display = 'block'; return; }
+  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js').then(function(authModule) {
+    authModule.signInWithEmailAndPassword(auth, email, pass).catch(function() {
+      document.getElementById('login-err').style.display = 'block';
+    });
+  });
+});
+
+// Enter key op wachtwoord veld
+setTimeout(function() {
+  var passEl = document.getElementById('login-pass');
+  if (passEl) passEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') document.getElementById('btn-email-login').click(); });
+}, 500);
+
+document.getElementById('btn-email-login').addEventListener('click', function() {
+  var email = document.getElementById('login-email').value.trim();
+  var pass = document.getElementById('login-pass').value;
+  var errEl = document.getElementById('login-err');
+  errEl.style.display = 'none';
+  if (!email || !pass) { errEl.textContent = 'Vul e-mail en wachtwoord in.'; errEl.style.display = 'block'; return; }
+  signInWithEmailAndPassword(auth, email, pass).catch(function() {
+    errEl.textContent = 'E-mail of wachtwoord onjuist.';
+    errEl.style.display = 'block';
+  });
+});
+
+document.getElementById('login-pass').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('btn-email-login').click();
+});
+
 document.getElementById('btn-google-login').addEventListener('click', function() {
   signInWithPopup(auth, provider).catch(function(err) {
     document.getElementById('login-err').style.display = 'block';
