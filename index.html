@@ -235,9 +235,12 @@ input[type=file]{display:none}
       <button class="mi" id="btn-new" type="button">
         <div class="mi-ico r">📋</div><div><h3>Nieuwe inspectie</h3><p>Start een nieuwe inspectieopdracht</p></div><div class="mi-arr">›</div>
       </button>
-      <button class="mi hide" id="btn-resume" type="button">
-        <div class="mi-ico" style="background:var(--orgl)">⏸️</div><div><h3>Lopende inspectie hervatten</h3><p id="resume-lbl">Doorgaan</p></div><div class="mi-arr">›</div>
-      </button>
+      <div class="hide" id="btn-resume-wrap" style="display:none;position:relative">
+        <button class="mi" id="btn-resume" type="button" style="padding-right:60px">
+          <div class="mi-ico" style="background:var(--orgl)">⏸️</div><div><h3>Lopende inspectie hervatten</h3><p id="resume-lbl">Doorgaan</p></div><div class="mi-arr">›</div>
+        </button>
+        <button id="btn-discard" type="button" onclick="discardCurrent(event)" style="position:absolute;right:0;top:0;bottom:0;width:52px;background:#FDECEA;border:none;border-left:1px solid var(--g200);border-radius:0 var(--r) var(--r) 0;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent" title="Verwijderen">🗑️</button>
+      </div>
       <button class="mi" id="btn-archive" type="button">
         <div class="mi-ico b">📁</div><div><h3>Eerdere inspecties</h3><p>Archief bekijken &amp; exporteren</p></div><div class="mi-arr">›</div>
       </button>
@@ -840,12 +843,27 @@ function checkResume() {
       if (s&&s.points&&s.points.length>0&&!s.completedAt) {
         var nm=(s.client&&s.client.naam)||'Onbekend';
         G('resume-lbl').textContent=nm+' — '+(s.type||'');
+        var wrap = document.getElementById('btn-resume-wrap');
+        if (wrap) { wrap.style.display=''; wrap.classList.remove('hide'); }
         setHide('btn-resume',false);
         return;
       }
     }
   } catch(e) {}
   setHide('btn-resume',true);
+  var wrap2 = document.getElementById('btn-resume-wrap');
+  if (wrap2) wrap2.style.display='none';
+}
+
+function discardCurrent(e) {
+  if (e) e.stopPropagation();
+  if (confirm('Lopende inspectie weggooien? Dit kan niet ongedaan gemaakt worden.')) {
+    try { localStorage.removeItem(SK); } catch(ex) {}
+    var wrap = document.getElementById('btn-resume-wrap');
+    if (wrap) wrap.style.display = 'none';
+    checkResume();
+    showToast('Inspectie verwijderd');
+  }
 }
 
 function resumeInsp() {
